@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * Represents a single chess piece
@@ -10,7 +11,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private ChessGame.TeamColor pieceColor;
+    private ChessPiece.PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -28,15 +34,13 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
-    public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
-    }
+    public ChessGame.TeamColor getTeamColor() {return this.pieceColor;}
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return this.type;
     }
 
     /**
@@ -47,6 +51,30 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        MoveCalculator calculator = new MoveCalculator();
+        ArrayList<ChessMove> moves = switch (type) {
+            case KING: {
+                yield calculator.KingMoveCalculator(board, myPosition, this);
+            }
+            case QUEEN: {
+                yield calculator.QueenMoveCalculator(board, myPosition, this);
+            }
+            case BISHOP: {
+                yield calculator.BishopMoveCalculator(board, myPosition, this);
+            }
+            case KNIGHT: {
+                yield calculator.KnightMoveCalculator(board, myPosition, this);
+            }
+            case ROOK: {
+                yield calculator.RookMoveCalculator(board, myPosition, this);
+            }
+            case PAWN: {
+                yield calculator.PawnMoveCalculator(board, myPosition, this);
+            }
+            default: {
+                yield new ArrayList<ChessMove>();
+            }
+        };
+        return moves;
     }
 }
