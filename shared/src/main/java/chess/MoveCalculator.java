@@ -105,21 +105,25 @@ public class MoveCalculator {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
-        int[][] directions = new int[][]{{2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}};
+        int[][] directions = new int[][]{{-1, 0}, {0, 1}, {0, -1}, {1, 0}};
         for (int[] rowCol : directions) {
             int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
-            if ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
+            while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
                 ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
                 ChessPiece tempPiece = board.getPiece(tempPosition);
                 if (tempPiece == null) {
                     moves.add(new ChessMove(position, tempPosition, null));
+                    tempRow += rowCol[0];
+                    tempCol += rowCol[1];
                 } else {
                     if (tempPiece.getTeamColor() != piece.getTeamColor()) {
                         moves.add(new ChessMove(position, tempPosition, null));
                     }
+                    break;
                 }
 
             }
+
         }
         return moves;
     }
