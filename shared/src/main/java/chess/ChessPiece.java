@@ -83,4 +83,12 @@ public class ChessPiece {
         ChessPiece other = (ChessPiece) obj;
         return ((other.pieceColor == this.pieceColor) && (other.getPieceType() == this.getPieceType()));
     }
+    @Override
+    public int hashCode() {
+        int color = 0;
+        if (this.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            color = 10;
+        }
+        return this.getPieceType().ordinal() + color;
+    }
 }
