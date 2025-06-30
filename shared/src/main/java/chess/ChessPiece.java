@@ -77,4 +77,10 @@ public class ChessPiece {
         };
         return moves;
     }
+    @Override
+    public boolean equals(Object obj) {
+        if ((obj == null) || (obj.getClass() != this.getClass())) {return false;}
+        ChessPiece other = (ChessPiece) obj;
+        return ((other.pieceColor == this.pieceColor) && (other.getPieceType() == this.getPieceType()));
+    }
 }
