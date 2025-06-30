@@ -58,7 +58,7 @@ public class ChessMove {
                 yield this.getPromotionPiece().ordinal();
             }
         };
-        return (promotionHash*10000 + startPosition.getColumn() * 1000 + startPosition.getRow() * 100 + endPosition.getColumn() * 10 + endPosition.getRow());
+        return (promotionHash * 10000 + startPosition.getColumn() * 1000 + startPosition.getRow() * 100 + endPosition.getColumn() * 10 + endPosition.getRow());
     }
 
 }
