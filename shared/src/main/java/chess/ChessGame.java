@@ -106,9 +106,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        board.resetBoard();
-        this.turn = TeamColor.WHITE;
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
