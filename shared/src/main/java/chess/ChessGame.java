@@ -51,18 +51,35 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = this.board.getPiece(startPosition);
+        ChessPiece movingPiece = this.board.getPiece(startPosition);
+        TeamColor team = movingPiece.getTeamColor();
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
-        if ((piece == null) || (piece.getTeamColor() != this.turn)) {
+        ChessPiece capturedPiece;
+        ChessPosition endPosition;
+        if ((movingPiece == null)) {
             return moves;
         }
-        Collection<ChessMove> potentialMoves = this.board.getPiece(startPosition).pieceMoves(this.board, startPosition);
+        Collection<ChessMove> potentialMoves = movingPiece.pieceMoves(this.board, startPosition);
         this.board.addPiece(startPosition, null);
         for (ChessMove move : potentialMoves) {
+            endPosition = move.getEndPosition();
+            capturedPiece = this.board.getPiece(endPosition);
             if (move.getPromotionPiece() == null) {
-                throw new RuntimeException("Not implemented");
+                this.board.addPiece(endPosition, movingPiece);
+                if (!this.isInCheck(team)) {
+                    moves.add(move);
+                }
+                this.board.addPiece(endPosition, capturedPiece);
+            }
+            if (move.getPromotionPiece() != null) {
+                this.board.addPiece(endPosition, new ChessPiece(team, move.getPromotionPiece()));
+                if (!this.isInCheck(team)) {
+                    moves.add(move);
+                }
+                this.board.addPiece(endPosition, capturedPiece);
             }
         }
+        this.board.addPiece(startPosition, movingPiece);
         // not finished
 
         return moves;
