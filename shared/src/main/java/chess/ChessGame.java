@@ -92,6 +92,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if ((this.board.getPiece(move.getStartPosition()) == null) || (this.board.getPiece(move.getStartPosition()).getTeamColor() != this.turn)) {
+            throw new InvalidMoveException("Invalid move");
+        }
         Collection<ChessMove> moves = validMoves(move.getStartPosition());
         if (!moves.contains(move)) {
             throw new InvalidMoveException("Invalid move");
@@ -99,11 +102,25 @@ public class ChessGame {
         if (move.getPromotionPiece() == null) {
             this.board.addPiece(move.getEndPosition(), this.board.getPiece(move.getStartPosition()));
             this.board.addPiece(move.getStartPosition(), null);
-            return;
+            if (this.turn == TeamColor.BLACK) {
+                this.turn = TeamColor.WHITE;
+                return;
+            }
+            if (this.turn == TeamColor.WHITE) {
+                this.turn = TeamColor.BLACK;
+                return;
+            }
         }
         this.board.addPiece(move.getEndPosition(), new ChessPiece(this.board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
         this.board.addPiece(move.getStartPosition(), null);
-        return;
+        if (this.turn == TeamColor.BLACK) {
+            this.turn = TeamColor.WHITE;
+            return;
+        }
+        if (this.turn == TeamColor.WHITE) {
+            this.turn = TeamColor.BLACK;
+            return;
+        }
     }
 
     /**
