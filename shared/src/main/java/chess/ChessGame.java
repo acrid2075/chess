@@ -238,4 +238,16 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return this.board;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if ((obj == null) || (obj.getClass() != this.getClass())) {return false;}
+        ChessGame other = (ChessGame) obj;
+        return ((this.getTeamTurn() == other.getTeamTurn()) && (this.getBoard().equals(other.getBoard())));
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getTeamTurn().ordinal() * 2000 + this.getBoard().hashCode();
+    }
 }
