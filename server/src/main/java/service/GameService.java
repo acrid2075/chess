@@ -20,7 +20,6 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-
     public Collection<GameData> listGames() {
         return this.gameDAO.listGames();
     }
