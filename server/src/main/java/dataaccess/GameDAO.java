@@ -10,5 +10,5 @@ public interface GameDAO {
     public abstract GameData getGame(int gameID);
     public abstract GameData createGame(String gameName);
     public abstract Collection<GameData> listGames();
-    public abstract GameData updateGame(String gameName, String username, String PlayerColor);
+    public abstract GameData updateGame(int gameID, String username, String PlayerColor);
 }

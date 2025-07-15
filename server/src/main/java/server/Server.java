@@ -23,47 +23,41 @@ public class Server {
         Spark.delete("/db", (req, res) -> clearService.clear());
 
 
-        Spark.post("/user", new Route() {
-            UserService service = new UserService();
-            public Object handle(Request req, Response res) {
-                return service.register(req, res);
-            }
-        });
-
-        Spark.post("/session", new Route() {
-            UserService service = new UserService();
-            public Object handle(Request req, Response res) {
-                return service.login(req, res);
-            }
-        });
-
-        Spark.delete("/session", new Route() {
-            UserService service = new UserService();
-            public Object handle(Request req, Response res) {
-                return service.logout(req, res);
-            }
-        });
-
-        Spark.get("/game", new Route() {
-            GameService service = new GameService();
-            public Object handle(Request req, Response res) {
-                return service.listGames(req, res);
-            }
-        });
-
-        Spark.post("/game", new Route() {
-            GameService service = new GameService();
-            public Object handle(Request req, Response res) {
-                return service.createGame(req, res);
-            }
-        });
-
-        Spark.put("/game", new Route() {
-            GameService service = new GameService();
-            public Object handle(Request req, Response res) {
-                return service.joinGame(req, res);
-            }
-        });
+//        Spark.post("/user", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.register(req, res);
+//            }
+//        });
+//
+//        Spark.post("/session", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.login(req, res);
+//            }
+//        });
+//
+//        Spark.delete("/session", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.logout(req, res);
+//            }
+//        });
+//
+//        Spark.get("/game", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.listGames(req, res);
+//            }
+//        });
+//
+//        Spark.post("/game", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.createGame(req, res);
+//            }
+//        });
+//
+//        Spark.put("/game", new Route() {
+//            public Object handle(Request req, Response res) {
+//                return service.joinGame(req, res);
+//            }
+//        });
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
 //        Spark.init();

@@ -2,11 +2,18 @@ package server;
 
 import chess.ChessBoard;
 import chess.ChessPosition;
+import dataaccess.*;
+import model.AuthData;
+import model.UserData;
 import passoff.chess.EqualsTestingUtility;
+import requests.RegisterRequest;
 import server.Server;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.ClearService;
+import service.GameService;
+import service.UserService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,10 +24,68 @@ public class ServerUnitTests extends EqualsTestingUtility<Server> {
         super("Server", "servers");
     }
     @Test
-    @DisplayName("Construct Empty ChessBoard")
-    public void constructChessBoard() {
+    @DisplayName("Construct DAO")
+    public void constructDAO() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        assert gameDAO.listGames().isEmpty();
+    }
 
+    @Test
+    @DisplayName("Test getAuth fails for missing authToken")
+    public void getAuthFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        assert authDAO.getAuth(" ") == null;
+    }
 
+    @Test
+    @DisplayName("Test register succeeds for new user")
+    public void RegisterTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+        }
+        catch (AlreadyTakenException e) {
+            success = false;
+        }
+        assert success;
+        assert userDAO.getUser("andycrid") == userData;
+    }
+
+    @Test
+    @DisplayName("Test register fails wit")
+    public void RegisterFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = false;
+        try {
+            userService.register(new RegisterRequest(userData));
+            try {
+                userService.register(new RegisterRequest(userData));
+            }
+            catch (AlreadyTakenException e) {
+                success = true;
+            }
+        }
+        catch (AlreadyTakenException ignored) {
+        }
+        assert success;
+        assert userDAO.getUser("andycrid") == userData;
     }
 
     @Override

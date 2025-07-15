@@ -34,13 +34,13 @@ public class MemGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData updateGame(String gameName, String username, String PlayerColor) {
-        GameData currentGameData = gamedata.get(gameName.hashCode());
+    public GameData updateGame(int gameID, String username, String PlayerColor) {
+        GameData currentGameData = gamedata.get(gameID);
         if (Objects.equals(PlayerColor, "BLACK")) {
-            gamedata.replace(currentGameData.gameID(), new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), username, gameName, currentGameData.game()));
+            gamedata.replace(currentGameData.gameID(), new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), username, currentGameData.gameName(), currentGameData.game()));
             return gamedata.get(currentGameData.gameID());
         }
-        gamedata.replace(gameName.hashCode(), new GameData(currentGameData.gameID(), username, currentGameData.blackUsername(), gameName, currentGameData.game()));
+        gamedata.replace(gameID, new GameData(currentGameData.gameID(), username, currentGameData.blackUsername(), currentGameData.gameName(), currentGameData.game()));
         return gamedata.get(currentGameData.gameID());
     }
 

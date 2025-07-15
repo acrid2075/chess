@@ -1,11 +1,16 @@
 package service;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import jdk.jshell.spi.ExecutionControl;
+import model.GameData;
+import requests.CreateGamesRequest;
+import requests.JoinGameRequest;
 import spark.Request;
 import spark.Response;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class GameService {
@@ -15,27 +20,16 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+
+    public Collection<GameData> listGames() {
+        return this.gameDAO.listGames();
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public GameData createGame(CreateGamesRequest createGamesRequest) {
+        return this.gameDAO.createGame(createGamesRequest.gameName());
     }
 
-    public CreateGamesResult createGame(CreateGamesRequest createGamesRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
-    }
-
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public GameData joinGame(JoinGameRequest joinGameRequest) {
+        return this.gameDAO.updateGame(joinGameRequest.gameID(), joinGameRequest.username(), joinGameRequest.PlayerColor());
     }
 }

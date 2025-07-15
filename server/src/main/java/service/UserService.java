@@ -1,13 +1,20 @@
 package service;
 
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import jdk.jshell.spi.ExecutionControl;
+import model.AuthData;
+import model.UserData;
+import requests.LoginRequest;
+import requests.LogoutRequest;
+import requests.RegisterRequest;
+import results.LoginResult;
+import results.RegisterResult;
 import spark.Request;
 import spark.Response;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class UserService {
     private UserDAO userDAO;
@@ -18,21 +25,40 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException {
+        if (userDAO.getUser(registerRequest.userData().username()) != null) {
+            throw new AlreadyTakenException("Username already taken.");
+        }
+        this.userDAO.createUser(registerRequest.userData());
+        String authToken = String.valueOf(UUID.randomUUID());
+        String username = registerRequest.userData().username();
+        this.authDAO.createAuth(new AuthData(authToken, username));
+        return new RegisterResult(username, authToken);
     }
 
-    public LoginResult login(LoginRequest loginRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, IncorrectPasswordException {
+        String username = loginRequest.username();
+        UserData userData = userDAO.getUser(username);
+        if (userData.equals(null)) {
+            throw new DataAccessException("No user with that username.");
+        }
+        String actualpassword = userData.password();
+        String inputpassword = loginRequest.password();
+        if (actualpassword != inputpassword) {
+            throw new IncorrectPasswordException("Incorrect Password.");
+        }
+        String authToken = String.valueOf(UUID.randomUUID());
+        AuthData authData = new AuthData(authToken, username);
+        authDAO.createAuth(authData);
+        return new LoginResult(authData);
     }
 
-    public void logout(LogoutRequest logoutRequest) {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        String authToken = logoutRequest.authToken();
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData.equals(null)) {
+            throw new DataAccessException("Invalid AuthToken.");
+        }
+        authDAO.deleteAuth(authToken);
     }
 }
