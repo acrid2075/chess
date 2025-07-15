@@ -16,10 +16,10 @@ public class ClearService {
         this.authDAO = authDAO;
     }
 
-
-    public void clear() {
-        throw new ExecutionControl.NotImplementedException("Not Implemented");
-        res.type("application/json");
-        return new Gson().toJson(Map.of("name", names));
+    public Object clear() {
+        gameDAO.clear();
+        userDAO.clear();
+        authDAO.clear();
+        return new Gson().toJson(Map.of());
     }
 }

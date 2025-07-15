@@ -22,13 +22,6 @@ public class Server {
 
         Spark.delete("/db", (req, res) -> clearService.clear());
 
-        Spark.delete("/db", new Route() {
-            ClearService service = new ClearService();
-            public Object handle(Request req, Response res) {
-
-                return service.clear(req, res);
-            }
-        });
 
         Spark.post("/user", new Route() {
             UserService service = new UserService();
