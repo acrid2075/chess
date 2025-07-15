@@ -8,10 +8,7 @@ import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.util.log.Log;
 import passoff.chess.EqualsTestingUtility;
-import requests.CreateGamesRequest;
-import requests.LoginRequest;
-import requests.LogoutRequest;
-import requests.RegisterRequest;
+import requests.*;
 import results.LoginResult;
 import server.Server;
 import org.junit.jupiter.api.Assertions;
@@ -274,7 +271,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that listGames is not empty.")
-    public void ListGameFalse() {
+    public void ListGamesFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -294,6 +291,57 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         }
         assert success;
     }
+
+
+    @Test
+    @DisplayName("Test that places the user in the slot.")
+    public void JoinGameTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
+            gameService.joinGame(new JoinGameRequest(gameData.gameID(), "andycrid", "BLACK"));
+            assert gameService.listGames().contains(new GameData(gameData.gameID(), null, "andycrid", "Jerry", gameData.game()));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+    }
+
+    @Test
+    @DisplayName("Test that places user in the right slot.")
+    public void JoinGameFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
+            gameService.joinGame(new JoinGameRequest(gameData.gameID(), "andycrid", "BLACK"));
+            assert !gameService.listGames().contains(new GameData(gameData.gameID(), "andycrid", null, "Jerry", gameData.game()));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+    }
+
+
 
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
