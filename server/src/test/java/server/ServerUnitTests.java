@@ -8,7 +8,9 @@ import model.UserData;
 import org.eclipse.jetty.util.log.Log;
 import passoff.chess.EqualsTestingUtility;
 import requests.LoginRequest;
+import requests.LogoutRequest;
 import requests.RegisterRequest;
+import results.LoginResult;
 import server.Server;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -137,6 +139,53 @@ public class ServerUnitTests extends EqualsTestingUtility<Server> {
             success = false;
         }
         assert !success;
+    }
+
+
+    @Test
+    @DisplayName("Test register succeeds for new user")
+    public void LogoutTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.logout(new LogoutRequest(loginResult.authData().authToken()));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+
+    }
+
+    @Test
+    @DisplayName("Test register fails wit")
+    public void LogoutFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = false;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.logout(new LogoutRequest(loginResult.authData().authToken()));
+            userService.logout(new LogoutRequest(loginResult.authData().authToken()));
+        }
+        catch (Exception e) {
+            success = true;
+        }
+        assert success;
     }
 
 
