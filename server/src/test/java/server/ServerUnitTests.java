@@ -5,7 +5,9 @@ import chess.ChessPosition;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.util.log.Log;
 import passoff.chess.EqualsTestingUtility;
+import requests.LoginRequest;
 import requests.RegisterRequest;
 import server.Server;
 import org.junit.jupiter.api.Assertions;
@@ -87,6 +89,56 @@ public class ServerUnitTests extends EqualsTestingUtility<Server> {
         assert success;
         assert userDAO.getUser("andycrid") == userData;
     }
+
+    @Test
+    @DisplayName("Test register succeeds for new user")
+    public void LoginTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            userService.login(new LoginRequest(userData.username(), userData.password()));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+    }
+
+    @Test
+    @DisplayName("Test register fails wit")
+    public void LoginFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            userService.login(new LoginRequest(userData.username(), "12344"));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert !success;
+        try {
+            userService.login(new LoginRequest("bencrid", "12345"));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert !success;
+    }
+
 
     @Override
     protected Server buildOriginal() {
