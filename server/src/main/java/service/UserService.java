@@ -61,4 +61,9 @@ public class UserService {
         }
         authDAO.deleteAuth(authToken);
     }
+
+    public AuthData getAuth(String authToken) {
+        AuthData authData = authDAO.getAuth(authToken);
+        return null;
+    }
 }
