@@ -1,8 +1,15 @@
 package server;
 
+import com.google.gson.Gson;
 import dataaccess.*;
+import model.UserData;
 import spark.*;
 import service.*;
+import requests.*;
+import results.*;
+
+
+import java.util.Map;
 
 public class Server {
 
@@ -23,18 +30,84 @@ public class Server {
         Spark.delete("/db", (req, res) -> clearService.clear());
 
 
-//        Spark.post("/user", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.register(req, res);
-//            }
-//        });
-//
-//        Spark.post("/session", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.login(req, res);
-//            }
-//        });
-//
+        Spark.post("/user", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                UserData userData = serializer.fromJson(req.body(), UserData.class);
+                if ((userData.username() == null) || (userData.password() == null)) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: username or password null" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (userService.isUser(userData.username())) {
+                    res.status(403);
+                    var body = serializer.toJson(Map.of("message","Error: already taken" ));
+                    res.body(body);
+                    return body;
+                }
+                try {
+                    RegisterResult result = userService.register(new RegisterRequest(userData));
+                    res.status(200);
+                    var body = serializer.toJson(Map.of("username", result.username(), "authToken",result.authToken()));
+                    res.body(body);
+                    return body;
+                } catch (AlreadyTakenException e) {
+                    res.status(403);
+                    var body = serializer.toJson(Map.of("message","Error: already taken" ));
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message",e.getClass() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
+
+        Spark.post("/session", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
+                if ((loginRequest.password() == null) || (loginRequest.username() == null)) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: bad request" ));
+                    res.body(body);
+                    return body;
+                }
+                if (!userService.isUser(loginRequest.username())) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+                try {
+                    LoginResult result = userService.login(loginRequest);
+                    res.status(200);
+                    var body = serializer.toJson(Map.of("username", result.authData().username(), "authToken", result.authData().authToken()));
+                    res.body(body);
+                    return body;
+                } catch (IncorrectPasswordException e) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message", "Error: unauthorized" + e.getMessage() ));
+                    res.body(body);
+                    return body;
+                } catch (DataAccessException e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message", "Unclear but failed on data access." ));
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message", e.getClass().toString() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
+
 //        Spark.delete("/session", new Route() {
 //            public Object handle(Request req, Response res) {
 //                return service.logout(req, res);

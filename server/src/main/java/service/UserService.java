@@ -38,14 +38,14 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, IncorrectPasswordException {
         String username = loginRequest.username();
-        UserData userData = userDAO.getUser(username);
-        if (userData.equals(null)) {
+        UserData userData = this.userDAO.getUser(username);
+        if (userData == null) {
             throw new DataAccessException("No user with that username.");
         }
         String actualpassword = userData.password();
         String inputpassword = loginRequest.password();
-        if (actualpassword != inputpassword) {
-            throw new IncorrectPasswordException("Incorrect Password.");
+        if (!actualpassword.equals(inputpassword)) {
+            throw new IncorrectPasswordException("Incorrect Password." + actualpassword + inputpassword);
         }
         String authToken = String.valueOf(UUID.randomUUID());
         AuthData authData = new AuthData(authToken, username);
@@ -63,7 +63,10 @@ public class UserService {
     }
 
     public AuthData getAuth(String authToken) {
-        AuthData authData = authDAO.getAuth(authToken);
-        return null;
+        return authDAO.getAuth(authToken);
+    }
+
+    public Boolean isUser(String username) {
+        return (userDAO.getUser(username) != null) ;
     }
 }
