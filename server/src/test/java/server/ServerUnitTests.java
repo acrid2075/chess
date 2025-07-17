@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import chess.ChessPosition;
 import dataaccess.*;
 import model.AuthData;
@@ -247,6 +248,54 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
 
     @Test
+    @DisplayName("Test the new game is in ListGames when created.")
+    public void GetGameTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
+            assert (gameService.getGame(gameData.gameID()) == gameData);
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+    }
+
+    @Test
+    @DisplayName("Test that createGame doesn't leave list games empty.")
+    public void GetGameFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
+            assert (gameService.getGame(gameData.gameID()) != new GameData(1222, "me", "you", "there", new ChessGame()));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assert success;
+    }
+
+
+
+    @Test
     @DisplayName("Test that ListGames contains a game.")
     public void ListGamesTrue() {
         GameDAO gameDAO = new MemGameDAO();
@@ -387,6 +436,48 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         }
         catch (Exception e) {
             success = false;
+        }
+        assert success;
+    }
+
+
+    @Test
+    @DisplayName("Test register succeeds for new user")
+    public void IsUserTrue() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            assert userService.isUser("andycrid");
+        }
+        catch (AlreadyTakenException e) {
+            success = false;
+        }
+        assert success;
+    }
+
+    @Test
+    @DisplayName("Test register fails with existing username.")
+    public void IsUserFalse() {
+        GameDAO gameDAO = new MemGameDAO();
+        AuthDAO authDAO = new MemAuthDAO();
+        UserDAO userDAO = new MemUserDAO();
+        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO);
+        UserService userService = new UserService(userDAO, authDAO);
+        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        Boolean success = true;
+        try {
+            userService.register(new RegisterRequest(userData));
+            assert !userService.isUser("bencrid");
+        }
+        catch (AlreadyTakenException ignored) {
         }
         assert success;
     }
