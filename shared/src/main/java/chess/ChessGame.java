@@ -137,10 +137,8 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 temppos = new ChessPosition(i, j);
                 temppiece = this.board.getPiece(temppos);
-                if ((temppiece != null) && (temppiece.getTeamColor() == teamColor) && (temppiece.getPieceType() == ChessPiece.PieceType.KING)) {
-                    kingPosition = temppos;
-                    break;
-                }
+                kingPosition = ((temppiece != null) && (temppiece.getTeamColor() == teamColor) &&
+                        (temppiece.getPieceType() == ChessPiece.PieceType.KING)) ? temppos : kingPosition;
             }
             if (kingPosition != null) {
                 break;
@@ -151,13 +149,22 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 temppos = new ChessPosition(i, j);
                 temppiece = this.board.getPiece(temppos);
-                if ((temppiece != null) && (temppiece.getTeamColor() != teamColor)) {
-                    possibleMoves = temppiece.pieceMoves(this.board, temppos);
-                    for (ChessMove move : possibleMoves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true;
-                        }
-                    }
+                if (vulnerableKing(temppiece, teamColor, board, temppos,
+                        kingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean vulnerableKing(ChessPiece temppiece, TeamColor teamColor, ChessBoard board, ChessPosition temppos,
+                                   ChessPosition kingPosition) {
+        if ((temppiece != null) && (temppiece.getTeamColor() != teamColor)) {
+            Collection<ChessMove> possibleMoves = temppiece.pieceMoves(board, temppos);
+            for (ChessMove move : possibleMoves) {
+                if (move.getEndPosition().equals(kingPosition)) {
+                    return true;
                 }
             }
         }

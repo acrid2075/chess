@@ -45,7 +45,8 @@ public class ChessMove {
     public boolean equals(Object obj) {
         if ((obj == null) || (obj.getClass() != this.getClass())) {return false;}
         ChessMove other = (ChessMove) obj;
-        return (other.getStartPosition().equals(this.getStartPosition()) && other.getEndPosition().equals(this.getEndPosition()) && (other.getPromotionPiece() == this.getPromotionPiece()));
+        return (other.getStartPosition().equals(this.getStartPosition()) && other.getEndPosition().equals(
+                this.getEndPosition()) && (other.getPromotionPiece() == this.getPromotionPiece()));
     }
 
     @Override
@@ -58,7 +59,8 @@ public class ChessMove {
                 yield this.getPromotionPiece().ordinal();
             }
         };
-        return (promotionHash * 10000 + startPosition.getColumn() * 1000 + startPosition.getRow() * 100 + endPosition.getColumn() * 10 + endPosition.getRow());
+        return (promotionHash * 10000 + startPosition.getColumn() * 1000 + startPosition.getRow() * 100 +
+                endPosition.getColumn() * 10 + endPosition.getRow());
     }
 
 }
