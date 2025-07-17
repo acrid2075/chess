@@ -33,7 +33,7 @@ public class MoveCalculator {
         final int originalCol = position.getColumn();
         int[][] directions = new int[][]{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}};
         for (int[] rowCol : directions) {
-            int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
+            int tempRow = originalRow + rowCol[0], tempCol = rowCol[1] + originalCol;
             while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
                 ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
                 ChessPiece tempPiece = board.getPiece(tempPosition);
@@ -66,8 +66,8 @@ public class MoveCalculator {
                 ChessPiece tempPiece = board.getPiece(tempPosition);
                 if (tempPiece == null) {
                     moves.add(new ChessMove(position, tempPosition, null));
-                    tempRow += rowCol[0];
                     tempCol += rowCol[1];
+                    tempRow += rowCol[0];
                 } else {
                     if (tempPiece.getTeamColor() != piece.getTeamColor()) {
                         moves.add(new ChessMove(position, tempPosition, null));
