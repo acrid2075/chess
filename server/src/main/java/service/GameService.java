@@ -24,7 +24,10 @@ public class GameService {
         return this.gameDAO.listGames();
     }
 
-    public GameData createGame(CreateGamesRequest createGamesRequest) {
+    public GameData createGame(CreateGamesRequest createGamesRequest) throws DataAccessException {
+        if (gameDAO.isGame(createGamesRequest.gameName())) {
+            throw new DataAccessException("Already exists game with gameName.");
+        }
         return this.gameDAO.createGame(createGamesRequest.gameName());
     }
 

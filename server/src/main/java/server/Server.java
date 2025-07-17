@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import model.GameData;
 import model.UserData;
 import spark.*;
 import service.*;
@@ -60,7 +61,7 @@ public class Server {
                     return body;
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass() ));
+                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
                     res.body(body);
                     return body;
                 }
@@ -108,23 +109,88 @@ public class Server {
             }
         });
 
-//        Spark.delete("/session", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.logout(req, res);
-//            }
-//        });
-//
+        Spark.delete("/session", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                String authToken = req.headers("authorization");
+                if (authToken == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                try {
+                    userService.logout(new LogoutRequest(authToken));
+                    res.status(200);
+                    var body = serializer.toJson(Map.of());
+                    res.body(body);
+                    return body;
+                } catch (DataAccessException e) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
+
 //        Spark.get("/game", new Route() {
 //            public Object handle(Request req, Response res) {
 //                return service.listGames(req, res);
 //            }
 //        });
 //
-//        Spark.post("/game", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.createGame(req, res);
-//            }
-//        });
+        Spark.post("/game", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                record GameName (String gameName) {};
+                GameName gameName = serializer.fromJson(req.body(), GameName.class);
+                String authToken = req.headers("authorization");
+                if (authToken == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (gameName.gameName() == null) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: Bad Request" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (userService.getAuth(authToken) == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+                try {
+                    GameData gameData = gameService.createGame(new CreateGamesRequest(gameName.gameName()));
+                    res.status(200);
+                    var body = serializer.toJson(Map.of("gameID", gameData.gameID()));
+                    res.body(body);
+                    return body;
+                } catch (DataAccessException e) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: bad request" ));
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
 //
 //        Spark.put("/game", new Route() {
 //            public Object handle(Request req, Response res) {

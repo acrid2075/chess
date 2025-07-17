@@ -11,4 +11,5 @@ public interface GameDAO {
     public abstract GameData createGame(String gameName);
     public abstract Collection<GameData> listGames();
     public abstract GameData updateGame(int gameID, String username, String PlayerColor);
+    public abstract boolean isGame(String gameName);
 }

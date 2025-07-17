@@ -10,8 +10,11 @@ import java.util.Objects;
 
 public class MemGameDAO implements GameDAO {
     HashMap<Integer, GameData> gamedata = new HashMap<>();
+    HashMap<String, GameData> gamenames = new HashMap<>();
+    private int gameID = 1;
     public void clear() {
         gamedata.clear();
+        gamenames.clear();
     }
 
     @Override
@@ -23,9 +26,18 @@ public class MemGameDAO implements GameDAO {
     }
 
     @Override
+    public boolean isGame(String gameName) {
+        if (gamenames.containsKey(gameName)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public GameData createGame(String gameName) {
-        gamedata.put(gameName.hashCode(), new GameData(gameName.hashCode(), null, null, gameName, new ChessGame()));
-        return gamedata.get(gameName.hashCode());
+        this.gameID++;
+        gamedata.put(this.gameID, new GameData(this.gameID, null, null, gameName, new ChessGame()));
+        return gamedata.get(this.gameID);
     }
 
     @Override
