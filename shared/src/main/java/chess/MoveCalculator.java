@@ -13,6 +13,7 @@ public class MoveCalculator {
             if ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
                 ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
                 ChessPiece tempPiece = board.getPiece(tempPosition);
+                assert true;
                 if (tempPiece == null) {
                     moves.add(new ChessMove(position, tempPosition, null));
                 } else {

@@ -111,7 +111,8 @@ public class ChessGame {
                 return;
             }
         }
-        this.board.addPiece(move.getEndPosition(), new ChessPiece(this.board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
+        this.board.addPiece(move.getEndPosition(), new ChessPiece(this.board.getPiece(
+                move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
         this.board.addPiece(move.getStartPosition(), null);
         if (this.turn == TeamColor.BLACK) {
             this.turn = TeamColor.WHITE;
