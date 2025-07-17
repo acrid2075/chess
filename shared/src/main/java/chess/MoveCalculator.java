@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 
 public class MoveCalculator {
-    public ArrayList<ChessMove> KingMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> kingMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
@@ -26,7 +26,7 @@ public class MoveCalculator {
         return moves;
     }
 
-    public ArrayList<ChessMove> QueenMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> queenMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
@@ -53,7 +53,7 @@ public class MoveCalculator {
         return moves;
     }
 
-    public ArrayList<ChessMove> BishopMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> bishopMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
@@ -79,7 +79,7 @@ public class MoveCalculator {
         }
         return moves;
     }
-    public ArrayList<ChessMove> KnightMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> knightMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
@@ -101,7 +101,7 @@ public class MoveCalculator {
         }
         return moves;
     }
-    public ArrayList<ChessMove> RookMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> rookMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
@@ -127,7 +127,7 @@ public class MoveCalculator {
         }
         return moves;
     }
-    public ArrayList<ChessMove> PawnMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
+    public ArrayList<ChessMove> pawnMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         ArrayList<ChessPiece.PieceType> promotions = new ArrayList<ChessPiece.PieceType>();
         promotions.add(ChessPiece.PieceType.QUEEN);

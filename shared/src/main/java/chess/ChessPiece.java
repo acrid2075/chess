@@ -54,22 +54,22 @@ public class ChessPiece {
         MoveCalculator calculator = new MoveCalculator();
         ArrayList<ChessMove> moves = switch (type) {
             case KING: {
-                yield calculator.KingMoveCalculator(board, myPosition, this);
+                yield calculator.kingMoveCalculator(board, myPosition, this);
             }
             case QUEEN: {
-                yield calculator.QueenMoveCalculator(board, myPosition, this);
+                yield calculator.queenMoveCalculator(board, myPosition, this);
             }
             case BISHOP: {
-                yield calculator.BishopMoveCalculator(board, myPosition, this);
+                yield calculator.bishopMoveCalculator(board, myPosition, this);
             }
             case KNIGHT: {
-                yield calculator.KnightMoveCalculator(board, myPosition, this);
+                yield calculator.knightMoveCalculator(board, myPosition, this);
             }
             case ROOK: {
-                yield calculator.RookMoveCalculator(board, myPosition, this);
+                yield calculator.rookMoveCalculator(board, myPosition, this);
             }
             case PAWN: {
-                yield calculator.PawnMoveCalculator(board, myPosition, this);
+                yield calculator.pawnMoveCalculator(board, myPosition, this);
             }
             default: {
                 yield new ArrayList<ChessMove>();
