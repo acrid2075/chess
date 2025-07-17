@@ -10,6 +10,7 @@ import requests.*;
 import results.*;
 
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Server {
@@ -140,12 +141,43 @@ public class Server {
             }
         });
 
-//        Spark.get("/game", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.listGames(req, res);
-//            }
-//        });
-//
+
+
+        Spark.get("/game", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                String authToken = req.headers("authorization");
+                if (authToken == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (userService.getAuth(authToken) == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                try {
+                    Collection<GameData> games = gameService.listGames();
+                    res.status(200);
+                    var body = serializer.toJson(Map.of("games", games));
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
+
+
+
         Spark.post("/game", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
@@ -191,12 +223,80 @@ public class Server {
                 }
             }
         });
-//
-//        Spark.put("/game", new Route() {
-//            public Object handle(Request req, Response res) {
-//                return service.joinGame(req, res);
-//            }
-//        });
+
+        Spark.put("/game", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                record ColorID(String playerColor, int gameID) {};
+                ColorID colorID = serializer.fromJson(req.body(), ColorID.class);
+                String authToken = req.headers("authorization");
+                if (authToken == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (userService.getAuth(authToken) == null) {
+                    res.status(401);
+                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if ((colorID.playerColor() == null) || (colorID.playerColor().equals(""))) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: Bad Request"));
+                    res.body(body);
+                    return body;
+                }
+
+                if ((!colorID.playerColor().equals("WHITE")) && ((!colorID.playerColor().equals("BLACK")))) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: Bad Request"));
+                    res.body(body);
+                    return body;
+                }
+
+                if (gameService.getGame(colorID.gameID()) == null) {
+                    res.status(400);
+                    var body = serializer.toJson(Map.of("message","Error: Bad Request" ));
+                    res.body(body);
+                    return body;
+                }
+
+                if (colorID.playerColor().equals("BLACK")) {
+                    if (gameService.getGame(colorID.gameID()).blackUsername() != null) {
+                        res.status(403);
+                        var body = serializer.toJson(Map.of("message","Error: already taken" ));
+                        res.body(body);
+                        return body;
+                    }
+                }
+
+                if (colorID.playerColor().equals("WHITE")) {
+                    if (gameService.getGame(colorID.gameID()).whiteUsername() != null) {
+                        res.status(403);
+                        var body = serializer.toJson(Map.of("message","Error: already taken" ));
+                        res.body(body);
+                        return body;
+                    }
+                }
+
+                try {
+                    GameData gameData = gameService.joinGame(new JoinGameRequest(colorID.gameID(), userService.getAuth(authToken).username(), colorID.playerColor()));
+                    res.status(200);
+                    var body = serializer.toJson(Map.of());
+                    res.body(body);
+                    return body;
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    res.body(body);
+                    return body;
+                }
+            }
+        });
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
 //        Spark.init();

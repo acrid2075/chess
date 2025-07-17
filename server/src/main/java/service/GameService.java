@@ -34,4 +34,8 @@ public class GameService {
     public GameData joinGame(JoinGameRequest joinGameRequest) {
         return this.gameDAO.updateGame(joinGameRequest.gameID(), joinGameRequest.username(), joinGameRequest.PlayerColor());
     }
+
+    public GameData getGame(int gameID) {
+        return this.gameDAO.getGame(gameID);
+    }
 }
