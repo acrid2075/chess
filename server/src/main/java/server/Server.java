@@ -52,7 +52,8 @@ public class Server {
                 try {
                     RegisterResult result = userService.register(new RegisterRequest(userData));
                     res.status(200);
-                    var body = serializer.toJson(Map.of("username", result.username(), "authToken",result.authToken()));
+                    var body = serializer.toJson(Map.of("username", result.username(), "authToken",
+                            result.authToken()));
                     res.body(body);
                     return body;
                 } catch (AlreadyTakenException e) {
@@ -88,7 +89,8 @@ public class Server {
                 try {
                     LoginResult result = userService.login(loginRequest);
                     res.status(200);
-                    var body = serializer.toJson(Map.of("username", result.authData().username(), "authToken", result.authData().authToken()));
+                    var body = serializer.toJson(Map.of("username", result.authData().username(), "authToken",
+                            result.authData().authToken()));
                     res.body(body);
                     return body;
                 } catch (IncorrectPasswordException e) {
@@ -284,7 +286,8 @@ public class Server {
                 }
 
                 try {
-                    GameData gameData = gameService.joinGame(new JoinGameRequest(colorID.gameID(), userService.getAuth(authToken).username(), colorID.playerColor()));
+                    GameData gameData = gameService.joinGame(new JoinGameRequest(colorID.gameID(),
+                            userService.getAuth(authToken).username(), colorID.playerColor()));
                     res.status(200);
                     var body = serializer.toJson(Map.of());
                     res.body(body);

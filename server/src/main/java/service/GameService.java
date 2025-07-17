@@ -32,7 +32,7 @@ public class GameService {
     }
 
     public GameData joinGame(JoinGameRequest joinGameRequest) {
-        return this.gameDAO.updateGame(joinGameRequest.gameID(), joinGameRequest.username(), joinGameRequest.PlayerColor());
+        return this.gameDAO.updateGame(joinGameRequest.gameID(), joinGameRequest.username(), joinGameRequest.playerColor());
     }
 
     public GameData getGame(int gameID) {
