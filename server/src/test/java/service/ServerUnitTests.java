@@ -1,27 +1,14 @@
-package server;
+package service;
 
-import chess.ChessBoard;
 import chess.ChessGame;
-import chess.ChessPosition;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.eclipse.jetty.util.log.Log;
-import passoff.chess.EqualsTestingUtility;
 import requests.*;
 import results.LoginResult;
-import server.Server;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     public ServerUnitTests() { //super("Server", "servers");
