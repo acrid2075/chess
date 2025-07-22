@@ -8,43 +8,199 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
 
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 
-public class SysGameDAO implements GameDAO {
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
-    
+public class SysGameDAO implements GameDAO {
+    public SysGameDAO() {
+        try {
+            this.configureDatabase();
+        } catch (Exception e) {
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "This!sMyPassw0rd");
+    }
+
+    private void configureDatabase() throws SQLException {
+        try (var conn = getConnection()) {
+            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS ChessDB");
+            createDbStatement.executeUpdate();
+
+            conn.setCatalog("ChessDB");
+
+            var createGamesTable = """
+            CREATE TABLE  IF NOT EXISTS games (
+                id INT NOT NULL AUTO_INCREMENT,
+                whiteUsername TEXT,
+                blackUsername TEXT,
+                gameName TEXT,
+                game TEXT
+            )""";
+
+
+            try (var createTableStatement = conn.prepareStatement(createGamesTable)) {
+                createTableStatement.executeUpdate();
+            }
+        }
+    }
+
 
     @Override
     public void clear() {
-
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("DELETE * FROM games", RETURN_GENERATED_KEYS)) {
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public GameData getGame(int gameID) {
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?")) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        var id = rs.getInt("id");
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var game = rs.getString("game");
+                        return new GameData(id, whiteUsername, blackUsername, gameName, from_json(game));
+                    }
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+
+        }
         return null;
     }
 
     @Override
     public GameData createGame(String gameName) {
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?)", RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, null);
+                preparedStatement.setString(2, null);
+                preparedStatement.setString(3, gameName);
+                preparedStatement.setString(4, to_json(new ChessGame()));
+
+                preparedStatement.executeUpdate();
+
+                var resultSet = preparedStatement.getGeneratedKeys();
+                var ID = 0;
+                if (resultSet.next()) {
+                    ID = resultSet.getInt(1);
+                }
+
+                return new GameData(ID, null, null, gameName, new ChessGame());
+            } catch (Exception e) {
+
+            }
+        } catch (Exception e) {
+
+        }
         return null;
     }
 
     @Override
     public Collection<GameData> listGames() {
-        return List.of();
+        var games = new ArrayList<GameData>();
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        var id = rs.getInt("id");
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var game = rs.getString("game");
+                        games.add(new GameData(id, whiteUsername, blackUsername, gameName, from_json(game)));
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return games;
     }
 
     @Override
     public GameData updateGame(int gameID, String username, String playerColor) {
-        return null;
+        GameData gameData;
+        int id;
+        String whiteUsername = "";
+        String blackUsername = "";
+        String gameName = "";
+        String game = "";
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        id = rs.getInt("id");
+                        whiteUsername = rs.getString("whiteUsername");
+                        blackUsername = rs.getString("blackUsername");
+                        gameName = rs.getString("gameName");
+                        game = rs.getString("game");
+                        gameData = new GameData(id, whiteUsername, blackUsername, gameName, from_json(game));
+                    }
+                }
+            }
+            if (Objects.equals(playerColor, "BLACK")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?")) {
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setInt(2, gameID);
+                    preparedStatement.executeUpdate();
+                }
+                return new GameData(gameID,
+                    whiteUsername, username, gameName, from_json(game));
+            }
+
+            try (var preparedStatement = conn.prepareStatement("UPDATE games SET whiteUsername=? WHERE id=?")) {
+                preparedStatement.setString(1, username);
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return new GameData(gameID,
+                    username, blackUsername, gameName, from_json(game));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean isGame(String gameName) {
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id FROM games WHERE gameName=?")) {
+                preparedStatement.setString(1, gameName);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+
+        }
         return false;
     }
 
-    private ChessGame from_json (String jsoncontent) {
+    public ChessGame from_json (String jsoncontent) {
         var serializer = new Gson();
         ChessGameJson details = serializer.fromJson(jsoncontent, ChessGameJson.class);
         ChessBoard board = new ChessBoard();
@@ -71,7 +227,9 @@ public class SysGameDAO implements GameDAO {
                 String posCode = "" + c + d;
                 Class<?> f = details.getClass();
                 try {
-                    String pieceCode = (String) f.getDeclaredField(posCode).get(details);
+                    Field field = f.getDeclaredField(posCode);
+                    field.setAccessible(true);
+                    String pieceCode = (String) field.get(details);
                     ChessPiece piece = null;
                     if (map.containsKey(pieceCode)) {
                         piece = map.get(pieceCode);
@@ -80,7 +238,11 @@ public class SysGameDAO implements GameDAO {
                         board.addPiece(new ChessPosition(row, col), piece);
                     }
                 } catch (Exception e) {
-                    return new ChessGame();
+                    ChessGame newGame = new ChessGame();
+                    ChessBoard newboard = newGame.getBoard();
+                    board.addPiece(new ChessPosition(4, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
+                    newGame.setBoard(newboard);
+                    return newGame;
                 }
 
             }
@@ -92,7 +254,7 @@ public class SysGameDAO implements GameDAO {
         return output;
     }
 
-    private String to_json (ChessGame game) {
+    public String to_json (ChessGame game) {
         var serializer = new Gson();
         ChessBoard board = game.getBoard();
 
@@ -121,10 +283,10 @@ public class SysGameDAO implements GameDAO {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                 if (piece == null) {
                     args.put(posCode, "");
+                    continue;
                 }
-                if (piece != null) {
-                    args.put(posCode, reverseMap.get(piece));
-                }
+                args.put(posCode, reverseMap.get(piece));
+
             }
         }
         return serializer.toJson(args);

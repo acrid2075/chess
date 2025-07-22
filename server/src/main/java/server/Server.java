@@ -16,7 +16,7 @@ import java.util.Map;
 public class Server {
 
     public int run(int desiredPort) {
-        GameDAO gameDAO = new MemGameDAO();
+        GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
