@@ -27,7 +27,7 @@ public class SysAuthDAO implements AuthDAO {
             throw new RuntimeException(e);
         }
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
 
             var createauthtable = """
                 CREATE TABLE IF NOT EXISTS authtable (
@@ -47,7 +47,7 @@ public class SysAuthDAO implements AuthDAO {
     @Override
     public void clear() {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
             try (var preparedStatement = conn.prepareStatement("DELETE FROM authtable", RETURN_GENERATED_KEYS)) {
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
@@ -61,7 +61,7 @@ public class SysAuthDAO implements AuthDAO {
     @Override
     public AuthData getAuth(String authToken) {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
             try (var preparedStatement = conn.prepareStatement("SELECT auth, username FROM authtable WHERE auth=?")) {
                 preparedStatement.setString(1, authToken);
                 try (var rs = preparedStatement.executeQuery()) {
@@ -81,7 +81,7 @@ public class SysAuthDAO implements AuthDAO {
     @Override
     public void createAuth(AuthData authData) {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
             try (var preparedStatement = conn.prepareStatement("INSERT INTO authtable (auth, username) VALUES(?, ?)", RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, authData.authToken());
                 preparedStatement.setString(2, authData.username());
@@ -99,7 +99,7 @@ public class SysAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
             try (var preparedStatement = conn.prepareStatement("DELETE FROM authtable WHERE auth=?", RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, authToken);
                 preparedStatement.executeUpdate();

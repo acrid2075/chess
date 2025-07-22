@@ -29,7 +29,7 @@ public class SysUserDAO implements UserDAO {
         }
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("ChessDB");
+            
 
             var createUsersTable = """
             CREATE TABLE  IF NOT EXISTS users (

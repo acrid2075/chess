@@ -30,7 +30,7 @@ public class SysGameDAO implements GameDAO {
     private static void configureDatabase() throws SQLException {
         try (var conn = DatabaseManager.getConnection()) {
             DatabaseManager.createDatabase();
-            conn.setCatalog("ChessDB");
+            
 
             var createGamesTable = """
             CREATE TABLE IF NOT EXISTS games (

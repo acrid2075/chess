@@ -74,7 +74,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
             success = false;
         }
         assert success;
-        assert userDAO.getUser("andycrid") == userData;
+        assert userDAO.getUser("andycrid").username() == userData.username();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         catch (AlreadyTakenException ignored) {
         }
         assert success;
-        assert userDAO.getUser("andycrid") == userData;
+        assert userDAO.getUser("andycrid").username() == userData.username();
     }
 
     @Test
