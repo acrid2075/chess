@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -66,7 +67,7 @@ public class SysUserDAO implements UserDAO {
                     "INSERT INTO users (username, hashedpassword, email) VALUES(?, ?, ?)",
                     RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, userData.username());
-                preparedStatement.setString(2, userData.password());
+                preparedStatement.setString(2, BCrypt.hashpw(userData.password(), BCrypt.gensalt()));
                 preparedStatement.setString(3, userData.email());
 
                 preparedStatement.executeUpdate();
@@ -86,9 +87,9 @@ public class SysUserDAO implements UserDAO {
                 try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
                         var usernameReceived = rs.getString("username");
-                        var password = rs.getString("hashedpassword");
+                        var hashedpassword = rs.getString("hashedpassword");
                         var email = rs.getString("email");
-                        return new UserData(usernameReceived, password, email);
+                        return new UserData(usernameReceived, hashedpassword, email);
                     }
                     return null;
                 }

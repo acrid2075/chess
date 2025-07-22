@@ -43,10 +43,10 @@ public class UserService {
         if (userData == null) {
             throw new DataAccessException("No user with that username.");
         }
-        String actualpassword = userData.password();
+        String hashedpassword = userData.password();
         String inputpassword = loginRequest.password();
-        if (!BCrypt.checkpw(inputpassword, actualpassword)) {
-            throw new IncorrectPasswordException("Incorrect Password." + actualpassword + inputpassword);
+        if (!BCrypt.checkpw(inputpassword, hashedpassword)) {
+            throw new IncorrectPasswordException("Incorrect Password. " + hashedpassword + " " + inputpassword + " " + BCrypt.checkpw(inputpassword, hashedpassword));
         }
         String authToken = String.valueOf(UUID.randomUUID());
         AuthData authData = new AuthData(authToken, username);
