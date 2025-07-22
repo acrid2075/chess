@@ -5,6 +5,7 @@ import dataaccess.*;
 import jdk.jshell.spi.ExecutionControl;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.LoginRequest;
 import requests.LogoutRequest;
 import requests.RegisterRequest;
@@ -44,7 +45,7 @@ public class UserService {
         }
         String actualpassword = userData.password();
         String inputpassword = loginRequest.password();
-        if (!actualpassword.equals(inputpassword)) {
+        if (!BCrypt.checkpw(inputpassword, actualpassword)) {
             throw new IncorrectPasswordException("Incorrect Password." + actualpassword + inputpassword);
         }
         String authToken = String.valueOf(UUID.randomUUID());

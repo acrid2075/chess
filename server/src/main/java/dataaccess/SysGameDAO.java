@@ -17,27 +17,23 @@ import java.util.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class SysGameDAO implements GameDAO {
-    public SysGameDAO() {
+    static {
         try {
-            this.configureDatabase();
+            configureDatabase();
         } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "This!sMyPassw0rd");
-    }
 
-    private void configureDatabase() throws SQLException {
-        try (var conn = getConnection()) {
-            var createDbStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS ChessDB");
-            createDbStatement.executeUpdate();
-
+    private static void configureDatabase() throws SQLException {
+        try (var conn = DatabaseManager.getConnection()) {
+            DatabaseManager.createDatabase();
             conn.setCatalog("ChessDB");
 
             var createGamesTable = """
-            CREATE TABLE  IF NOT EXISTS games (
-                id INT NOT NULL AUTO_INCREMENT,
+            CREATE TABLE IF NOT EXISTS games (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 whiteUsername TEXT,
                 blackUsername TEXT,
                 gameName TEXT,
@@ -48,26 +44,28 @@ public class SysGameDAO implements GameDAO {
             try (var createTableStatement = conn.prepareStatement(createGamesTable)) {
                 createTableStatement.executeUpdate();
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
 
     @Override
     public void clear() {
-        try (var conn = getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("DELETE * FROM games", RETURN_GENERATED_KEYS)) {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("DELETE FROM games", RETURN_GENERATED_KEYS)) {
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public GameData getGame(int gameID) {
-        try (var conn = getConnection()) {
+        try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?")) {
                 preparedStatement.setInt(1, gameID);
                 try (var rs = preparedStatement.executeQuery()) {
@@ -90,7 +88,7 @@ public class SysGameDAO implements GameDAO {
 
     @Override
     public GameData createGame(String gameName) {
-        try (var conn = getConnection()) {
+        try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?)", RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, null);
                 preparedStatement.setString(2, null);
@@ -118,7 +116,7 @@ public class SysGameDAO implements GameDAO {
     @Override
     public Collection<GameData> listGames() {
         var games = new ArrayList<GameData>();
-        try (var conn = getConnection()) {
+        try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
@@ -145,7 +143,7 @@ public class SysGameDAO implements GameDAO {
         String blackUsername = "";
         String gameName = "";
         String game = "";
-        try (var conn = getConnection()) {
+        try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
@@ -178,14 +176,14 @@ public class SysGameDAO implements GameDAO {
             return new GameData(gameID,
                     username, blackUsername, gameName, from_json(game));
 
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public boolean isGame(String gameName) {
-        try (var conn = getConnection()) {
+        try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT id FROM games WHERE gameName=?")) {
                 preparedStatement.setString(1, gameName);
                 try (var rs = preparedStatement.executeQuery()) {

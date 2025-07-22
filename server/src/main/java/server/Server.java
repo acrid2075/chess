@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.*;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import spark.*;
 import service.*;
 import requests.*;
@@ -18,7 +19,7 @@ public class Server {
     public int run(int desiredPort) {
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
-        UserDAO userDAO = new MemUserDAO();
+        UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
@@ -35,8 +36,9 @@ public class Server {
         Spark.post("/user", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                UserData userData = serializer.fromJson(req.body(), UserData.class);
-                if ((userData.username() == null) || (userData.password() == null)) {
+                UserData tempuserData = serializer.fromJson(req.body(), UserData.class);
+                UserData userData = new UserData(tempuserData.username(), BCrypt.hashpw(tempuserData.password(), BCrypt.gensalt()), tempuserData.email());
+                if ((userData.username() == null) || (tempuserData.password() == null)) {
                     res.status(400);
                     var body = serializer.toJson(Map.of("message","Error: username or password null" ));
                     res.body(body);
@@ -74,6 +76,7 @@ public class Server {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
                 LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
+                //LoginRequest loginRequest = new LoginRequest(temploginRequest.username(), BCrypt.hashpw(temploginRequest.password(), BCrypt.gensalt()));
                 if ((loginRequest.password() == null) || (loginRequest.username() == null)) {
                     res.status(400);
                     var body = serializer.toJson(Map.of("message","Error: bad request" ));
@@ -136,7 +139,7 @@ public class Server {
                     return body;
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message", e.getClass().toString() + e.getMessage() ));
                     res.body(body);
                     return body;
                 }

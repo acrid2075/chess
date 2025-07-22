@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.*;
 import results.LoginResult;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     public ServerUnitTests() { //super("Server", "servers");
-
     }
     @Test
     @DisplayName("Construct DAO")
@@ -99,16 +99,18 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
+        String message = "";
         try {
             userService.register(new RegisterRequest(userData));
-            userService.login(new LoginRequest(userData.username(), userData.password()));
+            userService.login(new LoginRequest(userData.username(), "12345"));
         }
         catch (Exception e) {
             success = false;
+            message = e.getMessage();
         }
-        assert success;
+        assert success : message;
     }
 
     @Test
@@ -120,7 +122,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -149,7 +151,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -172,7 +174,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = false;
         try {
             userService.register(new RegisterRequest(userData));
@@ -196,7 +198,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -219,7 +221,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -243,7 +245,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -266,7 +268,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -291,7 +293,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -314,7 +316,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -338,7 +340,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -362,7 +364,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -388,7 +390,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -412,7 +414,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -437,7 +439,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -458,7 +460,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
