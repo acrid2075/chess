@@ -46,7 +46,8 @@ public class UserService {
         String hashedpassword = userData.password();
         String inputpassword = loginRequest.password();
         if (!BCrypt.checkpw(inputpassword, hashedpassword)) {
-            throw new IncorrectPasswordException("Incorrect Password. " + hashedpassword + " " + inputpassword + " " + BCrypt.checkpw(inputpassword, hashedpassword));
+            throw new IncorrectPasswordException("Incorrect Password. " + hashedpassword + " " + inputpassword + " " +
+                    BCrypt.checkpw(inputpassword, hashedpassword));
         }
         String authToken = String.valueOf(UUID.randomUUID());
         AuthData authData = new AuthData(authToken, username);
