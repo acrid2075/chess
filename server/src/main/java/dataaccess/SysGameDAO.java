@@ -75,7 +75,7 @@ public class SysGameDAO implements GameDAO {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("game");
-                        return new GameData(id, whiteUsername, blackUsername, gameName, from_json(game));
+                        return new GameData(id, whiteUsername, blackUsername, gameName, togglejsonoff(game));
                     }
                     return null;
                 }
@@ -88,21 +88,23 @@ public class SysGameDAO implements GameDAO {
     @Override
     public GameData createGame(String gameName) {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?)", RETURN_GENERATED_KEYS)) {
+            try (var preparedStatement = conn.prepareStatement(
+                    "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES(?, ?, ?, ?)",
+                    RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, null);
                 preparedStatement.setString(2, null);
                 preparedStatement.setString(3, gameName);
-                preparedStatement.setString(4, to_json(new ChessGame()));
+                preparedStatement.setString(4, togglejsonon(new ChessGame()));
 
                 preparedStatement.executeUpdate();
 
                 var resultSet = preparedStatement.getGeneratedKeys();
-                var ID = 0;
+                var id = 0;
                 if (resultSet.next()) {
-                    ID = resultSet.getInt(1);
+                    id = resultSet.getInt(1);
                 }
 
-                return new GameData(ID, null, null, gameName, new ChessGame());
+                return new GameData(id, null, null, gameName, new ChessGame());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -123,7 +125,7 @@ public class SysGameDAO implements GameDAO {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("game");
-                        games.add(new GameData(id, whiteUsername, blackUsername, gameName, from_json(game)));
+                        games.add(new GameData(id, whiteUsername, blackUsername, gameName, togglejsonoff(game)));
                     }
                 }
             }
@@ -150,7 +152,7 @@ public class SysGameDAO implements GameDAO {
                         blackUsername = rs.getString("blackUsername");
                         gameName = rs.getString("gameName");
                         game = rs.getString("game");
-                        gameData = new GameData(id, whiteUsername, blackUsername, gameName, from_json(game));
+                        gameData = new GameData(id, whiteUsername, blackUsername, gameName, togglejsonoff(game));
                     }
                 }
             }
@@ -161,7 +163,7 @@ public class SysGameDAO implements GameDAO {
                     preparedStatement.executeUpdate();
                 }
                 return new GameData(gameID,
-                    whiteUsername, username, gameName, from_json(game));
+                    whiteUsername, username, gameName, togglejsonoff(game));
             }
 
             try (var preparedStatement = conn.prepareStatement("UPDATE games SET whiteUsername=? WHERE id=?")) {
@@ -172,7 +174,7 @@ public class SysGameDAO implements GameDAO {
                 throw new RuntimeException(ex);
             }
             return new GameData(gameID,
-                    username, blackUsername, gameName, from_json(game));
+                    username, blackUsername, gameName, togglejsonoff(game));
 
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
@@ -196,7 +198,7 @@ public class SysGameDAO implements GameDAO {
         return false;
     }
 
-    public ChessGame from_json (String jsoncontent) {
+    public ChessGame togglejsonoff (String jsoncontent) {
         var serializer = new Gson();
         ChessGameJson details = serializer.fromJson(jsoncontent, ChessGameJson.class);
         ChessBoard board = new ChessBoard();
@@ -250,7 +252,7 @@ public class SysGameDAO implements GameDAO {
         return output;
     }
 
-    public String to_json (ChessGame game) {
+    public String togglejsonon (ChessGame game) {
         var serializer = new Gson();
         ChessBoard board = game.getBoard();
 

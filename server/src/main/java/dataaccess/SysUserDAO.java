@@ -62,7 +62,9 @@ public class SysUserDAO implements UserDAO {
     @Override
     public void createUser(UserData userData) {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("INSERT INTO users (username, hashedpassword, email) VALUES(?, ?, ?)", RETURN_GENERATED_KEYS)) {
+            try (var preparedStatement = conn.prepareStatement(
+                    "INSERT INTO users (username, hashedpassword, email) VALUES(?, ?, ?)",
+                    RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, userData.username());
                 preparedStatement.setString(2, userData.password());
                 preparedStatement.setString(3, userData.email());

@@ -55,7 +55,8 @@ public class Server {
                 var serializer = new Gson();
                 try {
                     UserData tempuserData = serializer.fromJson(req.body(), UserData.class);
-                    UserData userData = new UserData(tempuserData.username(), BCrypt.hashpw(tempuserData.password(), BCrypt.gensalt()), tempuserData.email());
+                    UserData userData = new UserData(tempuserData.username(), BCrypt.hashpw(tempuserData.password(),
+                            BCrypt.gensalt()), tempuserData.email());
                     if ((userData.username() == null) || (tempuserData.password() == null)) {
                         res.status(400);
                         var body = serializer.toJson(Map.of("message", "Error: username or password null"));
@@ -101,7 +102,6 @@ public class Server {
                 var serializer = new Gson();
                 try {
                     LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
-                    //LoginRequest loginRequest = new LoginRequest(temploginRequest.username(), BCrypt.hashpw(temploginRequest.password(), BCrypt.gensalt()));
                     if ((loginRequest.password() == null) || (loginRequest.username() == null)) {
                         res.status(400);
                         var body = serializer.toJson(Map.of("message", "Error: bad request"));

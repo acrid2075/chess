@@ -1,5 +1,4 @@
 package dataaccess;
-
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
@@ -17,7 +16,6 @@ import results.LoginResult;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-
 import java.util.Objects;
 
 public class DataAccessTests {
@@ -32,8 +30,8 @@ public class DataAccessTests {
         board.addPiece(new ChessPosition(4, 4), piece);
         game.setBoard(board);
         SysGameDAO serializer = new SysGameDAO();
-        String jsonval = serializer.to_json(game);
-        ChessGame out = serializer.from_json(jsonval);
+        String jsonval = serializer.togglejsonon(game);
+        ChessGame out = serializer.togglejsonoff(jsonval);
         var newserializer = new Gson();
         ChessGameJson chessGameJson = newserializer.fromJson(jsonval, ChessGameJson.class);
         Class<?> f = chessGameJson.getClass();
@@ -43,10 +41,11 @@ public class DataAccessTests {
         } catch (Exception e) {
             pieceCode = "not" + e.toString();
         }
-        Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(new ChessPosition(4, 4))+ game.getBoard().getPiece(new ChessPosition(4, 4)).getPieceType() + serializer.to_json(game));
+        Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(
+                new ChessPosition(4, 4))+ game.getBoard().getPiece(new
+                ChessPosition(4, 4)).getPieceType() + serializer.togglejsonon(game));
 
     }
-
     private void clearDAO() {
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
@@ -55,7 +54,6 @@ public class DataAccessTests {
         authDAO.clear();
         userDAO.clear();
     }
-
     @Test
     @DisplayName("Construct DAO")
     public void constructDAO() {
@@ -65,7 +63,6 @@ public class DataAccessTests {
         UserDAO userDAO = new SysUserDAO();
         assert gameDAO.listGames().isEmpty();
     }
-
     @Test
     @DisplayName("Test getAuth fails for missing authToken")
     public void getAuthFalse() {
@@ -75,7 +72,6 @@ public class DataAccessTests {
         UserDAO userDAO = new SysUserDAO();
         assert authDAO.getAuth(" ") == null;
     }
-
     @Test
     @DisplayName("Test getAuth succeeds for present authToken")
     public void getAuthTrue() {
@@ -87,7 +83,6 @@ public class DataAccessTests {
         authDAO.createAuth(authData);
         assert authDAO.getAuth("1").equals(authData);
     }
-
     @Test
     @DisplayName("Test register succeeds for new user")
     public void registerTrue() {
@@ -107,9 +102,9 @@ public class DataAccessTests {
             success = false;
         }
         assert success;
-        assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username()) : userDAO.getUser("andycrid").username() + userData.username();
+        assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username()) :
+                userDAO.getUser("andycrid").username() + userData.username();
     }
-
     @Test
     @DisplayName("Test register fails with existing username.")
     public void registerFalse() {
@@ -136,7 +131,6 @@ public class DataAccessTests {
         assert success;
         assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username());
     }
-
     @Test
     @DisplayName("Test Login succeeds for existing user.")
     public void loginTrue() {
@@ -160,7 +154,6 @@ public class DataAccessTests {
         }
         assert success : message;
     }
-
     @Test
     @DisplayName("Test Login fails with nonexistent users and incorrect usernames.")
     public void loginFalse() {
@@ -189,8 +182,6 @@ public class DataAccessTests {
         }
         assert !success;
     }
-
-
     @Test
     @DisplayName("Test Logout succeeds for logged-in user")
     public void logoutTrue() {
@@ -214,7 +205,6 @@ public class DataAccessTests {
         assert success;
 
     }
-
     @Test
     @DisplayName("Test Logout fails with logged out users.")
     public void logoutFalse() {
@@ -238,8 +228,6 @@ public class DataAccessTests {
         }
         assert success;
     }
-
-
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void createGameTrue() {
@@ -263,7 +251,6 @@ public class DataAccessTests {
         }
         assert success;
     }
-
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void createGameFalse() {
@@ -287,8 +274,6 @@ public class DataAccessTests {
         }
         assert success;
     }
-
-
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void getGameTrue() {
@@ -312,7 +297,6 @@ public class DataAccessTests {
         }
         assert success;
     }
-
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void getGameFalse() {
@@ -332,13 +316,9 @@ public class DataAccessTests {
             assert (gameService.getGame(gameData.gameID()) != new GameData(1222, "me", "you", "there", new ChessGame()));
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
-
-
     @Test
     @DisplayName("Test that ListGames contains a game.")
     public void listGamesTrue() {
@@ -362,7 +342,6 @@ public class DataAccessTests {
         }
         assert success;
     }
-
     @Test
     @DisplayName("Test that listGames is not empty.")
     public void listGamesFalse() {
@@ -382,12 +361,9 @@ public class DataAccessTests {
             assert !gameService.listGames().isEmpty();
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
-
     @Test
     @DisplayName("Test that places the user in the slot.")
     public void joinGameTrue() {
@@ -408,11 +384,9 @@ public class DataAccessTests {
             assert gameService.listGames().contains(new GameData(gameData.gameID(), null, "andycrid", "Jerry", gameData.game()));
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
     @Test
     @DisplayName("Test that places user in the right slot.")
     public void joinGameFalse() {
@@ -433,13 +407,9 @@ public class DataAccessTests {
             assert !gameService.listGames().contains(new GameData(gameData.gameID(), "andycrid", null, "Jerry", gameData.game()));
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
-
-
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void clearTrue() {
@@ -460,11 +430,9 @@ public class DataAccessTests {
             assert gameService.listGames().isEmpty();
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void clearFalse() {
@@ -485,12 +453,9 @@ public class DataAccessTests {
             assert !gameService.listGames().contains(gameData);
         }
         catch (Exception e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
-
     @Test
     @DisplayName("Test register succeeds for new user")
     public void isUserTrue() {
@@ -508,11 +473,9 @@ public class DataAccessTests {
             assert userService.isUser("andycrid");
         }
         catch (AlreadyTakenException e) {
-            success = false;
-        }
+            success = false; }
         assert success;
     }
-
     @Test
     @DisplayName("Test register fails with existing username.")
     public void isUserFalse() {
@@ -529,9 +492,7 @@ public class DataAccessTests {
             userService.register(new RegisterRequest(userData));
             assert !userService.isUser("bencrid");
         }
-        catch (AlreadyTakenException ignored) {
-        }
+        catch (AlreadyTakenException ignored) {}
         assert success;
     }
-
 }
