@@ -52,7 +52,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -73,7 +73,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = false;
         try {
             userService.register(new RegisterRequest(userData));

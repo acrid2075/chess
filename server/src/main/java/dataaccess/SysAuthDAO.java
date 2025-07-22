@@ -20,11 +20,6 @@ public class SysAuthDAO implements AuthDAO {
         }
     }
 
-    private static Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "This!sMyPassw0rd");
-        return conn;
-    }
-
     private static void configureDatabase() throws SQLException {
         try {
             DatabaseManager.createDatabase();
@@ -97,12 +92,11 @@ public class SysAuthDAO implements AuthDAO {
 
                 return;
             } catch (Exception e) {
-
+                throw new RuntimeException(e);
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
-        return;
     }
 
     @Override

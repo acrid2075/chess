@@ -17,6 +17,11 @@ import java.util.Map;
 public class Server {
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
@@ -30,42 +35,61 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
 
-        Spark.delete("/db", (req, res) -> clearService.clear());
+        Spark.delete("/db", new Route() {
+            public Object handle(Request req, Response res) {
+                var serializer = new Gson();
+                try {
+                    res.status(200);
+                    return clearService.clear();
+                } catch (Exception e) {
+                    res.status(500);
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
+                    res.body(body);
+                    return body;
+                }
+            }});
 
 
         Spark.post("/user", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                UserData tempuserData = serializer.fromJson(req.body(), UserData.class);
-                UserData userData = new UserData(tempuserData.username(), BCrypt.hashpw(tempuserData.password(), BCrypt.gensalt()), tempuserData.email());
-                if ((userData.username() == null) || (tempuserData.password() == null)) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: username or password null" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (userService.isUser(userData.username())) {
-                    res.status(403);
-                    var body = serializer.toJson(Map.of("message","Error: already taken" ));
-                    res.body(body);
-                    return body;
-                }
                 try {
-                    RegisterResult result = userService.register(new RegisterRequest(userData));
-                    res.status(200);
-                    var body = serializer.toJson(Map.of("username", result.username(), "authToken",
-                            result.authToken()));
-                    res.body(body);
-                    return body;
-                } catch (AlreadyTakenException e) {
-                    res.status(403);
-                    var body = serializer.toJson(Map.of("message","Error: already taken" ));
-                    res.body(body);
-                    return body;
+                    UserData tempuserData = serializer.fromJson(req.body(), UserData.class);
+                    UserData userData = new UserData(tempuserData.username(), BCrypt.hashpw(tempuserData.password(), BCrypt.gensalt()), tempuserData.email());
+                    if ((userData.username() == null) || (tempuserData.password() == null)) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: username or password null"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (userService.isUser(userData.username())) {
+                        res.status(403);
+                        var body = serializer.toJson(Map.of("message", "Error: already taken"));
+                        res.body(body);
+                        return body;
+                    }
+                    try {
+                        RegisterResult result = userService.register(new RegisterRequest(userData));
+                        res.status(200);
+                        var body = serializer.toJson(Map.of("username", result.username(), "authToken",
+                                result.authToken()));
+                        res.body(body);
+                        return body;
+                    } catch (AlreadyTakenException e) {
+                        res.status(403);
+                        var body = serializer.toJson(Map.of("message", "Error: already taken"));
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                     res.body(body);
                     return body;
                 }
@@ -75,40 +99,47 @@ public class Server {
         Spark.post("/session", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
-                //LoginRequest loginRequest = new LoginRequest(temploginRequest.username(), BCrypt.hashpw(temploginRequest.password(), BCrypt.gensalt()));
-                if ((loginRequest.password() == null) || (loginRequest.username() == null)) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: bad request" ));
-                    res.body(body);
-                    return body;
-                }
-                if (!userService.isUser(loginRequest.username())) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
                 try {
-                    LoginResult result = userService.login(loginRequest);
-                    res.status(200);
-                    var body = serializer.toJson(Map.of("username", result.authData().username(), "authToken",
-                            result.authData().authToken()));
-                    res.body(body);
-                    return body;
-                } catch (IncorrectPasswordException e) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message", "Error: unauthorized" + e.getMessage() ));
-                    res.body(body);
-                    return body;
-                } catch (DataAccessException e) {
-                    res.status(500);
-                    var body = serializer.toJson(Map.of("message", "Unclear but failed on data access." ));
-                    res.body(body);
-                    return body;
+                    LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
+                    //LoginRequest loginRequest = new LoginRequest(temploginRequest.username(), BCrypt.hashpw(temploginRequest.password(), BCrypt.gensalt()));
+                    if ((loginRequest.password() == null) || (loginRequest.username() == null)) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: bad request"));
+                        res.body(body);
+                        return body;
+                    }
+                    if (!userService.isUser(loginRequest.username())) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+                    try {
+                        LoginResult result = userService.login(loginRequest);
+                        res.status(200);
+                        var body = serializer.toJson(Map.of("username", result.authData().username(), "authToken",
+                                result.authData().authToken()));
+                        res.body(body);
+                        return body;
+                    } catch (IncorrectPasswordException e) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized" + e.getMessage()));
+                        res.body(body);
+                        return body;
+                    } catch (DataAccessException e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Error: Unclear but failed on data access."));
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message", e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                     res.body(body);
                     return body;
                 }
@@ -118,28 +149,35 @@ public class Server {
         Spark.delete("/session", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                String authToken = req.headers("authorization");
-                if (authToken == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
                 try {
-                    userService.logout(new LogoutRequest(authToken));
-                    res.status(200);
-                    var body = serializer.toJson(Map.of());
-                    res.body(body);
-                    return body;
-                } catch (DataAccessException e) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
+                    String authToken = req.headers("authorization");
+                    if (authToken == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    try {
+                        userService.logout(new LogoutRequest(authToken));
+                        res.status(200);
+                        var body = serializer.toJson(Map.of());
+                        res.body(body);
+                        return body;
+                    } catch (DataAccessException e) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString() + e.getMessage()));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message", e.getClass().toString() + e.getMessage() ));
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString() + e.getMessage()));
                     res.body(body);
                     return body;
                 }
@@ -151,30 +189,37 @@ public class Server {
         Spark.get("/game", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                String authToken = req.headers("authorization");
-                if (authToken == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (userService.getAuth(authToken) == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
                 try {
-                    Collection<GameData> games = gameService.listGames();
-                    res.status(200);
-                    var body = serializer.toJson(Map.of("games", games));
-                    res.body(body);
-                    return body;
+                    String authToken = req.headers("authorization");
+                    if (authToken == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (userService.getAuth(authToken) == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
+                        res.body(body);
+                        return body;
+                    }
+
+                    try {
+                        Collection<GameData> games = gameService.listGames();
+                        res.status(200);
+                        var body = serializer.toJson(Map.of("games", games));
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message","Internal Error: " + e.getClass().toString() ));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message","Internal Error: " + e.getClass().toString() ));
                     res.body(body);
                     return body;
                 }
@@ -186,43 +231,52 @@ public class Server {
         Spark.post("/game", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                record GameName (String gameName) {};
-                GameName gameName = serializer.fromJson(req.body(), GameName.class);
-                String authToken = req.headers("authorization");
-                if (authToken == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (gameName.gameName() == null) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: Bad Request" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (userService.getAuth(authToken) == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
                 try {
-                    GameData gameData = gameService.createGame(new CreateGamesRequest(gameName.gameName()));
-                    res.status(200);
-                    var body = serializer.toJson(Map.of("gameID", gameData.gameID()));
-                    res.body(body);
-                    return body;
-                } catch (DataAccessException e) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: bad request" ));
-                    res.body(body);
-                    return body;
+                    record GameName(String gameName) {
+                    }
+                    ;
+                    GameName gameName = serializer.fromJson(req.body(), GameName.class);
+                    String authToken = req.headers("authorization");
+                    if (authToken == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (gameName.gameName() == null) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: Bad Request"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (userService.getAuth(authToken) == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+                    try {
+                        GameData gameData = gameService.createGame(new CreateGamesRequest(gameName.gameName()));
+                        res.status(200);
+                        var body = serializer.toJson(Map.of("gameID", gameData.gameID()));
+                        res.body(body);
+                        return body;
+                    } catch (DataAccessException e) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: bad request"));
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                     res.body(body);
                     return body;
                 }
@@ -232,72 +286,81 @@ public class Server {
         Spark.put("/game", new Route() {
             public Object handle(Request req, Response res) {
                 var serializer = new Gson();
-                record ColorID(String playerColor, int gameID) {};
-                ColorID colorID = serializer.fromJson(req.body(), ColorID.class);
-                String authToken = req.headers("authorization");
-                if (authToken == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (userService.getAuth(authToken) == null) {
-                    res.status(401);
-                    var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if ((colorID.playerColor() == null) || (colorID.playerColor().equals(""))) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: Bad Request"));
-                    res.body(body);
-                    return body;
-                }
-
-                if ((!colorID.playerColor().equals("WHITE")) && ((!colorID.playerColor().equals("BLACK")))) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: Bad Request"));
-                    res.body(body);
-                    return body;
-                }
-
-                if (gameService.getGame(colorID.gameID()) == null) {
-                    res.status(400);
-                    var body = serializer.toJson(Map.of("message","Error: Bad Request" ));
-                    res.body(body);
-                    return body;
-                }
-
-                if (colorID.playerColor().equals("BLACK")) {
-                    if (gameService.getGame(colorID.gameID()).blackUsername() != null) {
-                        res.status(403);
-                        var body = serializer.toJson(Map.of("message","Error: already taken" ));
-                        res.body(body);
-                        return body;
-                    }
-                }
-
-                if (colorID.playerColor().equals("WHITE")) {
-                    if (gameService.getGame(colorID.gameID()).whiteUsername() != null) {
-                        res.status(403);
-                        var body = serializer.toJson(Map.of("message","Error: already taken" ));
-                        res.body(body);
-                        return body;
-                    }
-                }
-
                 try {
-                    GameData gameData = gameService.joinGame(new JoinGameRequest(colorID.gameID(),
-                            userService.getAuth(authToken).username(), colorID.playerColor()));
-                    res.status(200);
-                    var body = serializer.toJson(Map.of());
-                    res.body(body);
-                    return body;
+                    record ColorID(String playerColor, int gameID) {
+                    }
+                    ;
+                    ColorID colorID = serializer.fromJson(req.body(), ColorID.class);
+                    String authToken = req.headers("authorization");
+                    if (authToken == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (userService.getAuth(authToken) == null) {
+                        res.status(401);
+                        var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if ((colorID.playerColor() == null) || (colorID.playerColor().equals(""))) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: Bad Request"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if ((!colorID.playerColor().equals("WHITE")) && ((!colorID.playerColor().equals("BLACK")))) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: Bad Request"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (gameService.getGame(colorID.gameID()) == null) {
+                        res.status(400);
+                        var body = serializer.toJson(Map.of("message", "Error: Bad Request"));
+                        res.body(body);
+                        return body;
+                    }
+
+                    if (colorID.playerColor().equals("BLACK")) {
+                        if (gameService.getGame(colorID.gameID()).blackUsername() != null) {
+                            res.status(403);
+                            var body = serializer.toJson(Map.of("message", "Error: already taken"));
+                            res.body(body);
+                            return body;
+                        }
+                    }
+
+                    if (colorID.playerColor().equals("WHITE")) {
+                        if (gameService.getGame(colorID.gameID()).whiteUsername() != null) {
+                            res.status(403);
+                            var body = serializer.toJson(Map.of("message", "Error: already taken"));
+                            res.body(body);
+                            return body;
+                        }
+                    }
+
+                    try {
+                        GameData gameData = gameService.joinGame(new JoinGameRequest(colorID.gameID(),
+                                userService.getAuth(authToken).username(), colorID.playerColor()));
+                        res.status(200);
+                        var body = serializer.toJson(Map.of());
+                        res.body(body);
+                        return body;
+                    } catch (Exception e) {
+                        res.status(500);
+                        var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
+                        res.body(body);
+                        return body;
+                    }
                 } catch (Exception e) {
                     res.status(500);
-                    var body = serializer.toJson(Map.of("message",e.getClass().toString() ));
+                    var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                     res.body(body);
                     return body;
                 }

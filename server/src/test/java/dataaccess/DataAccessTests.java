@@ -11,11 +11,14 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.*;
 import results.LoginResult;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+
+import java.util.Objects;
 
 public class DataAccessTests {
     public DataAccessTests() {
@@ -44,10 +47,19 @@ public class DataAccessTests {
 
     }
 
+    private void clearDAO() {
+        GameDAO gameDAO = new SysGameDAO();
+        AuthDAO authDAO = new SysAuthDAO();
+        UserDAO userDAO = new SysUserDAO();
+        gameDAO.clear();
+        authDAO.clear();
+        userDAO.clear();
+    }
 
     @Test
     @DisplayName("Construct DAO")
     public void constructDAO() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
@@ -57,6 +69,7 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test getAuth fails for missing authToken")
     public void getAuthFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
@@ -66,24 +79,26 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test getAuth succeeds for present authToken")
     public void getAuthTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         AuthData authData = new AuthData("1", "andycrid");
         authDAO.createAuth(authData);
-        assert authDAO.getAuth("1") == authData;
+        assert authDAO.getAuth("1").equals(authData);
     }
 
     @Test
     @DisplayName("Test register succeeds for new user")
     public void registerTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -92,19 +107,20 @@ public class DataAccessTests {
             success = false;
         }
         assert success;
-        assert userDAO.getUser("andycrid") == userData;
+        assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username()) : userDAO.getUser("andycrid").username() + userData.username();
     }
 
     @Test
     @DisplayName("Test register fails with existing username.")
     public void registerFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = false;
         try {
             userService.register(new RegisterRequest(userData));
@@ -118,40 +134,44 @@ public class DataAccessTests {
         catch (AlreadyTakenException ignored) {
         }
         assert success;
-        assert userDAO.getUser("andycrid") == userData;
+        assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username());
     }
 
     @Test
     @DisplayName("Test Login succeeds for existing user.")
     public void loginTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
+        String message = "";
         try {
             userService.register(new RegisterRequest(userData));
-            userService.login(new LoginRequest(userData.username(), userData.password()));
+            userService.login(new LoginRequest(userData.username(), "12345"));
         }
         catch (Exception e) {
             success = false;
+            message = e.getMessage();
         }
-        assert success;
+        assert success : message;
     }
 
     @Test
     @DisplayName("Test Login fails with nonexistent users and incorrect usernames.")
     public void loginFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -174,13 +194,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test Logout succeeds for logged-in user")
     public void logoutTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -197,13 +218,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test Logout fails with logged out users.")
     public void logoutFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = false;
         try {
             userService.register(new RegisterRequest(userData));
@@ -221,13 +243,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void createGameTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -244,13 +267,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void createGameFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -268,19 +292,20 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void getGameTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
-            assert (gameService.getGame(gameData.gameID()) == gameData);
+            assert (gameService.getGame(gameData.gameID()).equals(gameData));
         }
         catch (Exception e) {
             success = false;
@@ -291,13 +316,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void getGameFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -316,13 +342,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that ListGames contains a game.")
     public void listGamesTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -339,13 +366,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that listGames is not empty.")
     public void listGamesFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -363,13 +391,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that places the user in the slot.")
     public void joinGameTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -387,13 +416,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that places user in the right slot.")
     public void joinGameFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -413,13 +443,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
     public void clearTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -437,13 +468,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void clearFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -462,13 +494,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test register succeeds for new user")
     public void isUserTrue() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -483,13 +516,14 @@ public class DataAccessTests {
     @Test
     @DisplayName("Test register fails with existing username.")
     public void isUserFalse() {
+        clearDAO();
         GameDAO gameDAO = new SysGameDAO();
         AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new SysUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid",  BCrypt.hashpw("12345", BCrypt.gensalt()), "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));

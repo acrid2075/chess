@@ -81,9 +81,8 @@ public class SysGameDAO implements GameDAO {
                 }
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
@@ -105,12 +104,11 @@ public class SysGameDAO implements GameDAO {
 
                 return new GameData(ID, null, null, gameName, new ChessGame());
             } catch (Exception e) {
-
+                throw new RuntimeException(e);
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
@@ -130,7 +128,7 @@ public class SysGameDAO implements GameDAO {
                 }
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
         return games;
     }
@@ -193,7 +191,7 @@ public class SysGameDAO implements GameDAO {
                 }
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
         return false;
     }

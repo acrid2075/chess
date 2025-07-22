@@ -20,12 +20,6 @@ public class SysUserDAO implements UserDAO {
         }
     }
 
-    private static Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "This!sMyPassw0rd");
-        conn.setCatalog("ChessDB");
-        return conn;
-    }
-
     private static void configureDatabase() throws SQLException {
         try {
             DatabaseManager.createDatabase();
@@ -75,10 +69,10 @@ public class SysUserDAO implements UserDAO {
 
                 preparedStatement.executeUpdate();
             } catch (Exception e) {
-
+                throw new RuntimeException(e);
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,8 +92,7 @@ public class SysUserDAO implements UserDAO {
                 }
             }
         } catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }
