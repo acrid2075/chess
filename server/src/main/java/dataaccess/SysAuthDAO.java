@@ -85,11 +85,8 @@ public class SysAuthDAO implements AuthDAO {
             try (var preparedStatement = conn.prepareStatement("INSERT INTO authtable (auth, username) VALUES(?, ?)", RETURN_GENERATED_KEYS)) {
                 preparedStatement.setString(1, authData.authToken());
                 preparedStatement.setString(2, authData.username());
-
                 preparedStatement.executeUpdate();
-
                 var resultSet = preparedStatement.getGeneratedKeys();
-
                 return;
             } catch (Exception e) {
                 throw new RuntimeException(e);

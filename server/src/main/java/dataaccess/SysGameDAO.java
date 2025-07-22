@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
 
+import javax.management.RuntimeErrorException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -236,11 +237,7 @@ public class SysGameDAO implements GameDAO {
                         board.addPiece(new ChessPosition(row, col), piece);
                     }
                 } catch (Exception e) {
-                    ChessGame newGame = new ChessGame();
-                    ChessBoard newboard = newGame.getBoard();
-                    board.addPiece(new ChessPosition(4, 4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
-                    newGame.setBoard(newboard);
-                    return newGame;
+                    throw new RuntimeException(e);
                 }
 
             }
