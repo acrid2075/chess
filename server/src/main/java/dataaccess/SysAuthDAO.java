@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 
@@ -78,11 +79,36 @@ public class SysAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData authData) {
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("INSERT INTO authTable (auth, username) VALUES(?, ?)", RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, authData.authToken());
+                preparedStatement.setString(2, authData.username());
 
+                preparedStatement.executeUpdate();
+
+                var resultSet = preparedStatement.getGeneratedKeys();
+
+                return;
+            } catch (Exception e) {
+
+            }
+        } catch (Exception e) {
+
+        }
+        return;
     }
 
     @Override
     public void deleteAuth(String authToken) {
-
+        try (var conn = getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("DELETE * FROM authTable WHERE auth=?", RETURN_GENERATED_KEYS)) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

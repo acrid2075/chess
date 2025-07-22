@@ -17,7 +17,7 @@ public class Server {
 
     public int run(int desiredPort) {
         GameDAO gameDAO = new SysGameDAO();
-        AuthDAO authDAO = new MemAuthDAO();
+        AuthDAO authDAO = new SysAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO);
