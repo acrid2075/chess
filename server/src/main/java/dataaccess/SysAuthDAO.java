@@ -31,7 +31,7 @@ public class SysAuthDAO implements AuthDAO {
 
             var createauthtable = """
                 CREATE TABLE IF NOT EXISTS authtable (
-                auth VARCHAR(1000) PRIMARY KEY,
+                auth VARCHAR(200) PRIMARY KEY,
                 username TEXT
             )""";
 
