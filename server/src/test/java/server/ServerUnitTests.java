@@ -58,7 +58,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test register succeeds for new user")
-    public void RegisterTrue() {
+    public void registerTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -79,7 +79,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test register fails with existing username.")
-    public void RegisterFalse() {
+    public void registerFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -105,7 +105,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test Login succeeds for existing user.")
-    public void LoginTrue() {
+    public void loginTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -126,7 +126,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test Login fails with nonexistent users and incorrect usernames.")
-    public void LoginFalse() {
+    public void loginFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -155,7 +155,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test Logout succeeds for logged-in user")
-    public void LogoutTrue() {
+    public void logoutTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -178,7 +178,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test Logout fails with logged out users.")
-    public void LogoutFalse() {
+    public void logoutFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -225,7 +225,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
-    public void CreateGameFalse() {
+    public void createGameFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -249,7 +249,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that ListGames contains a game.")
-    public void ListGamesTrue() {
+    public void listGamesTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -272,7 +272,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that listGames is not empty.")
-    public void ListGamesFalse() {
+    public void listGamesFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -296,7 +296,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that places the user in the slot.")
-    public void JoinGameTrue() {
+    public void joinGameTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -320,7 +320,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that places user in the right slot.")
-    public void JoinGameFalse() {
+    public void joinGameFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -346,7 +346,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test the new game is in ListGames when created.")
-    public void ClearTrue() {
+    public void clearTrue() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -370,7 +370,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
 
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
-    public void ClearFalse() {
+    public void clearFalse() {
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
@@ -391,5 +391,4 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         }
         assert success;
     }
-
 }
