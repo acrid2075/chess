@@ -170,6 +170,7 @@ public class DataAccessUnitTests {
         }
         assert !success;
     }
+
     @Test
     @DisplayName("Test Logout succeeds for logged-in user")
     public void logoutTrue() {
