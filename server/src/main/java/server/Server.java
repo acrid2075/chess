@@ -82,6 +82,7 @@ public class Server {
                         res.body(body);
                         return body;
                     } catch (Exception e) {
+                        // Addresses internal errors for register
                         res.status(500);
                         var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                         res.body(body);
@@ -131,6 +132,7 @@ public class Server {
                         res.body(body);
                         return body;
                     } catch (Exception e) {
+                        // Addresses internal errors for login
                         res.status(500);
                         var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                         res.body(body);
@@ -268,6 +270,7 @@ public class Server {
                         res.body(body);
                         return body;
                     } catch (Exception e) {
+                        // Addresses internal errors for create game
                         res.status(500);
                         var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
                         res.body(body);

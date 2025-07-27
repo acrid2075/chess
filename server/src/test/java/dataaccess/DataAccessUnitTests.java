@@ -105,6 +105,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = false;
+        // Tests register, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             try {
@@ -119,6 +120,7 @@ public class DataAccessUnitTests {
         assert success;
         assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username());
     }
+
     @Test
     @DisplayName("Test Login succeeds for existing user.")
     public void loginTrue() {
@@ -130,6 +132,7 @@ public class DataAccessUnitTests {
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         String message = "";
+        // Tests login with existing, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             userService.login(new LoginRequest(userData.username(), "12345"));
@@ -150,6 +153,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests login with nonexistent, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             userService.login(new LoginRequest(userData.username(), "12344"));
@@ -176,6 +180,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests logout, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -197,6 +202,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = false;
+        // Tests login, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -218,6 +224,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests listgames, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -239,6 +246,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests creategame, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -301,6 +309,7 @@ public class DataAccessUnitTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests listgames, as data access unit
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));

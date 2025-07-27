@@ -428,6 +428,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests listgames, as data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -450,6 +451,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests join game positive, as data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -473,6 +475,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests join game, as data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -496,6 +499,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests listgames, as data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -519,6 +523,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests creategame, as data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
@@ -542,6 +547,7 @@ public class DataAccessTests {
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // Tests register, as data access
         try {
             userService.register(new RegisterRequest(userData));
             assert userService.isUser("andycrid");
