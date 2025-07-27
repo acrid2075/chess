@@ -37,13 +37,7 @@ public class Server {
 
         Spark.delete("/db", new Route() {
             public Object handle(Request req, Response res) {
-                var serializer = new Gson();
-                try {
-                    res.status(200);
-                    return clearService.clear();
-                } catch (Exception e) {
-                    return internalError(res, serializer, e);
-                }
+                return clear(req, res, clearService, gameService, userService);
             }});
 
 
@@ -65,43 +59,11 @@ public class Server {
             }
         });
 
-
-
         Spark.get("/game", new Route() {
             public Object handle(Request req, Response res) {
-                var serializer = new Gson();
-                try {
-                    String authToken = req.headers("authorization");
-                    if (authToken == null) {
-                        res.status(401);
-                        var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                        res.body(body);
-                        return body;
-                    }
-
-                    if (userService.getAuth(authToken) == null) {
-                        res.status(401);
-                        var body = serializer.toJson(Map.of("message","Error: unauthorized" ));
-                        res.body(body);
-                        return body;
-                    }
-
-                    try {
-                        Collection<GameData> games = gameService.listGames();
-                        res.status(200);
-                        var body = serializer.toJson(Map.of("games", games));
-                        res.body(body);
-                        return body;
-                    } catch (Exception e) {
-                        return internalError(res, serializer, e);
-                    }
-                } catch (Exception e) {
-                    return internalError(res, serializer, e);
-                }
+                return listGames(req, res, clearService, gameService, userService);
             }
         });
-
-
 
         Spark.post("/game", new Route() {
             public Object handle(Request req, Response res) {
@@ -369,6 +331,50 @@ public class Server {
         var body = serializer.toJson(Map.of("message", "Internal Error: " + e.getClass().toString()));
         res.body(body);
         return body;
+    }
+
+    private Object clear(Request req, Response res, ClearService clearService, GameService gameService,
+                              UserService userService) {
+        var serializer = new Gson();
+        try {
+            res.status(200);
+            return clearService.clear();
+        } catch (Exception e) {
+            return internalError(res, serializer, e);
+        }
+    }
+
+    private Object listGames(Request req, Response res, ClearService clearService, GameService gameService,
+                         UserService userService) {
+        var serializer = new Gson();
+        try {
+            String authToken = req.headers("authorization");
+            if (authToken == null) {
+                res.status(401);
+                var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                res.body(body);
+                return body;
+            }
+
+            if (userService.getAuth(authToken) == null) {
+                res.status(401);
+                var body = serializer.toJson(Map.of("message", "Error: unauthorized"));
+                res.body(body);
+                return body;
+            }
+
+            try {
+                Collection<GameData> games = gameService.listGames();
+                res.status(200);
+                var body = serializer.toJson(Map.of("games", games));
+                res.body(body);
+                return body;
+            } catch (Exception e) {
+                return internalError(res, serializer, e);
+            }
+        } catch (Exception e) {
+            return internalError(res, serializer, e);
+        }
     }
 
 }

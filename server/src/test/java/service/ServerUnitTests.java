@@ -43,7 +43,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("dandycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
@@ -52,14 +52,14 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
             success = false;
         }
         assert success;
-        assert userDAO.getUser("andycrid").username() == userData.username();
+        assert userDAO.getUser("dandycrid").username() == userData.username();
     }
 
     @Test
     @DisplayName("Test register fails with existing username.")
     public void registerFalse() {
-        AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
+        AuthDAO authDAO = new MemAuthDAO();
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = false;
@@ -84,12 +84,12 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", "12346", "acriddl2@byu.edu");
         Boolean success = true;
         String message = "";
         try {
             userService.register(new RegisterRequest(userData));
-            userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "12346"));
         }
         catch (Exception e) {
             success = false;
@@ -101,8 +101,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     @Test
     @DisplayName("Test Login fails with nonexistent users and incorrect usernames.")
     public void loginFalse() {
-        AuthDAO authDAO = new MemAuthDAO();
-        UserDAO userDAO = new MemUserDAO();
+        AuthDAO authDAO = new MemAuthDAO(); UserDAO userDAO = new MemUserDAO();
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
@@ -169,8 +168,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     @DisplayName("Test the new game is in ListGames when created.")
     public void createGameTrue() {
         GameDAO gameDAO = new MemGameDAO();
-        AuthDAO authDAO = new MemAuthDAO();
-        UserDAO userDAO = new MemUserDAO();
+        AuthDAO authDAO = new MemAuthDAO(); UserDAO userDAO = new MemUserDAO();
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
@@ -193,8 +191,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         GameDAO gameDAO = new MemGameDAO();
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
-        GameService gameService = new GameService(gameDAO);
-        UserService userService = new UserService(userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
@@ -235,8 +232,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     @Test
     @DisplayName("Test that createGame doesn't leave list games empty.")
     public void getGameFalse() {
-        GameDAO gameDAO = new MemGameDAO();
-        AuthDAO authDAO = new MemAuthDAO();
+        GameDAO gameDAO = new MemGameDAO(); AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
@@ -246,7 +242,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
             userService.register(new RegisterRequest(userData));
             userService.login(new LoginRequest(userData.username(), "12345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
-            assert (gameService.getGame(gameData.gameID()) != new GameData(1222, "me", "you", "there", new ChessGame()));
+            assert (gameService.getGame(gameData.gameID()) != new GameData(1202, "me", "you", "there", new ChessGame()));
         }
         catch (Exception e) {
             success = false;
@@ -259,9 +255,7 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
     @Test
     @DisplayName("Test that ListGames contains a game.")
     public void listGamesTrue() {
-        GameDAO gameDAO = new MemGameDAO();
-        AuthDAO authDAO = new MemAuthDAO();
-        UserDAO userDAO = new MemUserDAO();
+        GameDAO gameDAO = new MemGameDAO(); AuthDAO authDAO = new MemAuthDAO(); UserDAO userDAO = new MemUserDAO();
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
