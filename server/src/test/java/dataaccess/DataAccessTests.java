@@ -36,9 +36,7 @@ public class DataAccessTests {
         String pieceCode;
         try {
             pieceCode = (String) f.getDeclaredField("d4").get(chessGameJson);
-        } catch (Exception e) {
-            pieceCode = "not" + e.toString();
-        }
+        } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(4, 4))+ game.getBoard().getPiece(new
                 ChessPosition(4, 4)).getPieceType() + serializer.togglejsonon(game));
@@ -60,9 +58,7 @@ public class DataAccessTests {
         String pieceCode;
         try {
             pieceCode = (String) f.getDeclaredField("e4").get(chessGameJson);
-        } catch (Exception e) {
-            pieceCode = "not" + e.toString();
-        }
+        } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertNotEquals(out, game2, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(4, 5))+ game.getBoard().getPiece(new
                 ChessPosition(4, 5)).getPieceType() + serializer.togglejsonon(game));
@@ -83,9 +79,7 @@ public class DataAccessTests {
         String pieceCode;
         try {
             pieceCode = (String) f.getDeclaredField("e5").get(chessGameJson);
-        } catch (Exception e) {
-            pieceCode = "not" + e.toString();
-        }
+        } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(5, 5))+ game.getBoard().getPiece(new
                 ChessPosition(5, 5)).getPieceType() + serializer.togglejsonon(game));
@@ -108,9 +102,7 @@ public class DataAccessTests {
         String pieceCode;
         try {
             pieceCode = (String) f.getDeclaredField("d5").get(chessGameJson);
-        } catch (Exception e) {
-            pieceCode = "not" + e.toString();
-        }
+        } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertNotEquals(out, game2, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(5, 4))+ game.getBoard().getPiece(new
                 ChessPosition(5, 4)).getPieceType() + serializer.togglejsonon(game));
@@ -178,8 +170,7 @@ public class DataAccessTests {
                 success = true;
             }
         }
-        catch (AlreadyTakenException ignored) {
-        }
+        catch (AlreadyTakenException ignored) { }
         assert success;
         assert Objects.equals(userDAO.getUser("andycrid").username(), userData.username());
     }
@@ -211,20 +202,17 @@ public class DataAccessTests {
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
+        // tests login failing with bad inputs, data access
         try {
             userService.register(new RegisterRequest(userData));
             userService.login(new LoginRequest(userData.username(), "12344"));
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert !success;
         try {
             userService.login(new LoginRequest("bencrid", "12345"));
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert !success;
     }
     @Test
@@ -241,9 +229,7 @@ public class DataAccessTests {
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert success;
 
     }
@@ -255,15 +241,13 @@ public class DataAccessTests {
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = false;
+        // test logout, data access
         try {
             userService.register(new RegisterRequest(userData));
             LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
-        }
-        catch (Exception e) {
-            success = true;
-        }
+        } catch (Exception e) { success = true; }
         assert success;
     }
     @Test
@@ -271,19 +255,16 @@ public class DataAccessTests {
     public void createGameTrue() {
         clearDAO();
         GameDAO gameDAO = new SysGameDAO(); AuthDAO authDAO = new SysAuthDAO(); UserDAO userDAO = new SysUserDAO();
-        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "12345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
             assert gameService.listGames().contains(gameData);
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert success;
     }
     @Test
@@ -291,19 +272,16 @@ public class DataAccessTests {
     public void createGameFalse() {
         clearDAO();
         GameDAO gameDAO = new SysGameDAO(); AuthDAO authDAO = new SysAuthDAO(); UserDAO userDAO = new SysUserDAO();
-        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
-            GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
+            userService.login(new LoginRequest(userData.username(), "12345"));
+            gameService.createGame(new CreateGamesRequest("Jerry"));
             assert !gameService.listGames().isEmpty();
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert success;
     }
     @Test
@@ -317,13 +295,11 @@ public class DataAccessTests {
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "12345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
             assert (gameService.getGame(gameData.gameID()).equals(gameData));
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert success;
     }
     @Test
@@ -331,13 +307,12 @@ public class DataAccessTests {
     public void getGameFalse() {
         clearDAO();
         GameDAO gameDAO = new SysGameDAO(); AuthDAO authDAO = new SysAuthDAO(); UserDAO userDAO = new SysUserDAO();
-        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "12345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
             assert (gameService.getGame(gameData.gameID()) != new GameData(1222, "me", "you", "there", new ChessGame()));
         }
@@ -359,9 +334,7 @@ public class DataAccessTests {
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
             assert gameService.listGames().contains(gameData);
         }
-        catch (Exception e) {
-            success = false;
-        }
+        catch (Exception e) { success = false; }
         assert success;
     }
     @Test
@@ -468,8 +441,7 @@ public class DataAccessTests {
     public void isUserTrue() {
         clearDAO();
         GameDAO gameDAO = new SysGameDAO(); AuthDAO authDAO = new SysAuthDAO(); UserDAO userDAO = new SysUserDAO();
-        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
-        GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
+        UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
         Boolean success = true;
         // Tests register, as data access
@@ -487,12 +459,11 @@ public class DataAccessTests {
         ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
         UserData userData = new UserData("andycrid",  "12345", "acriddl2@byu.edu");
-        Boolean success = true;
+        // test register, data access
         try {
             userService.register(new RegisterRequest(userData));
             assert !userService.isUser("bencrid");
         }
         catch (AlreadyTakenException ignored) {}
-        assert success;
     }
 }
