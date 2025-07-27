@@ -182,22 +182,7 @@ public class ChessGame {
         if (!this.isInCheck(teamColor)) {
             return false;
         }
-        ChessPosition temppos;
-        ChessPiece temppiece;
-        Collection<ChessMove> moves;
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                temppos = new ChessPosition(i, j);
-                temppiece = this.board.getPiece(temppos);
-                if ((temppiece != null) && (temppiece.getTeamColor() == teamColor)) {
-                    moves = this.validMoves(temppos);
-                    for (ChessMove move: moves) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return checkEmpty(teamColor);
     }
 
     /**
@@ -208,25 +193,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition temppos;
-        ChessPiece temppiece;
-        Collection<ChessMove> moves;
         if (this.isInCheck(teamColor)) {
             return false;
         }
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                temppos = new ChessPosition(i, j);
-                temppiece = this.board.getPiece(temppos);
-                if ((temppiece != null) && (temppiece.getTeamColor() == teamColor)) {
-                    moves = this.validMoves(temppos);
-                    for (ChessMove move: moves) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return checkEmpty(teamColor);
     }
 
     /**
@@ -257,5 +227,24 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return this.getTeamTurn().ordinal() * 2000 + this.getBoard().hashCode();
+    }
+
+    private Boolean checkEmpty(TeamColor teamColor) {
+        ChessPosition temppos;
+        ChessPiece temppiece;
+        Collection<ChessMove> moves;
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                temppos = new ChessPosition(i, j);
+                temppiece = this.board.getPiece(temppos);
+                if ((temppiece != null) && (temppiece.getTeamColor() == teamColor)) {
+                    moves = this.validMoves(temppos);
+                    for (ChessMove move: moves) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

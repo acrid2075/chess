@@ -129,11 +129,11 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", "12375", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12375"));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
         }
         catch (Exception e) {
@@ -149,11 +149,11 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", "22345", "acriddl2@byu.edu");
         Boolean success = false;
         try {
             userService.register(new RegisterRequest(userData));
-            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "12345"));
+            LoginResult loginResult = userService.login(new LoginRequest(userData.username(), "22345"));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
             userService.logout(new LogoutRequest(loginResult.authData().authToken()));
         }
@@ -171,11 +171,11 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO(); UserDAO userDAO = new MemUserDAO();
         GameService gameService = new GameService(gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("andycrid", "13345", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "13345"));
             GameData gameData = gameService.createGame(new CreateGamesRequest("Jerry"));
             assert gameService.listGames().contains(gameData);
         }
@@ -192,11 +192,11 @@ public class ServerUnitTests { // extends EqualsTestingUtility<Server>
         AuthDAO authDAO = new MemAuthDAO();
         UserDAO userDAO = new MemUserDAO();
         GameService gameService = new GameService(gameDAO); UserService userService = new UserService(userDAO, authDAO);
-        UserData userData = new UserData("andycrid", "12345", "acriddl2@byu.edu");
+        UserData userData = new UserData("sandycrid", "12445", "acriddl2@byu.edu");
         Boolean success = true;
         try {
             userService.register(new RegisterRequest(userData));
-            userService.login(new LoginRequest(userData.username(), "12345"));
+            userService.login(new LoginRequest(userData.username(), "12445"));
             gameService.createGame(new CreateGamesRequest("Jerry"));
             assert !gameService.listGames().isEmpty();
         }

@@ -3,6 +3,48 @@ package chess;
 import java.util.ArrayList;
 
 public class MoveCalculator {
+
+    private ArrayList<ChessMove> standardMove(int tempRow, int tempCol, ChessBoard board, ChessPosition position,
+                                              ChessPiece piece) {
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        if ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
+            ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
+            ChessPiece tempPiece = board.getPiece(tempPosition);
+            assert true;
+            if (tempPiece == null) {
+                moves.add(new ChessMove(position, tempPosition, null));
+            } else {
+                if (tempPiece.getTeamColor() != piece.getTeamColor()) {
+                    moves.add(new ChessMove(position, tempPosition, null));
+                }
+            }
+        }
+        return moves;
+    }
+
+    private ArrayList<ChessMove> formoves(int[][] directions, int originalRow, int originalCol, ChessBoard board,
+                                          ChessPosition position, ChessPiece piece) {
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        for (int[] rowCol : directions) {
+            int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
+            while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
+                ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
+                ChessPiece tempPiece = board.getPiece(tempPosition);
+                if (tempPiece == null) {
+                    moves.add(new ChessMove(position, tempPosition, null));
+                    tempCol += rowCol[1];
+                    tempRow += rowCol[0];
+                } else {
+                    if (tempPiece.getTeamColor() != piece.getTeamColor()) {
+                        moves.add(new ChessMove(position, tempPosition, null));
+                    }
+                    break;
+                }
+            }
+        }
+        return moves;
+    }
+
     public ArrayList<ChessMove> kingMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
@@ -10,76 +52,25 @@ public class MoveCalculator {
         int[][] directions = new int[][]{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}};
         for (int[] rowCol : directions) {
             int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
-            if ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
-                ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                assert true;
-                if (tempPiece == null) {
-                    moves.add(new ChessMove(position, tempPosition, null));
-                } else {
-                    if (tempPiece.getTeamColor() != piece.getTeamColor()) {
-                        moves.add(new ChessMove(position, tempPosition, null));
-                    }
-                }
-
-            }
+            moves.addAll(standardMove(tempRow, tempCol, board, position, piece));
         }
         return moves;
     }
 
     public ArrayList<ChessMove> queenMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
         int[][] directions = new int[][]{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}};
-        for (int[] rowCol : directions) {
-            int tempRow = originalRow + rowCol[0], tempCol = rowCol[1] + originalCol;
-            while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
-                ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                if (tempPiece == null) {
-                    moves.add(new ChessMove(position, tempPosition, null));
-                    tempRow += rowCol[0];
-                    tempCol += rowCol[1];
-                } else {
-                    if (tempPiece.getTeamColor() != piece.getTeamColor()) {
-                        moves.add(new ChessMove(position, tempPosition, null));
-                    }
-                    break;
-                }
-
-            }
-
-        }
-        return moves;
+        return formoves(directions, originalRow, originalCol, board, position, piece);
     }
 
     public ArrayList<ChessMove> bishopMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
         int[][] directions = new int[][]{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-        for (int[] rowCol : directions) {
-            int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
-            while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
-                ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                if (tempPiece == null) {
-                    moves.add(new ChessMove(position, tempPosition, null));
-                    tempCol += rowCol[1];
-                    tempRow += rowCol[0];
-                } else {
-                    if (tempPiece.getTeamColor() != piece.getTeamColor()) {
-                        moves.add(new ChessMove(position, tempPosition, null));
-                    }
-                    break;
-                }
-
-            }
-
-        }
-        return moves;
+        return formoves(directions, originalRow, originalCol, board, position, piece);
     }
+
     public ArrayList<ChessMove> knightMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
@@ -103,30 +94,10 @@ public class MoveCalculator {
         return moves;
     }
     public ArrayList<ChessMove> rookMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
         final int originalRow = position.getRow();
         final int originalCol = position.getColumn();
         int[][] directions = new int[][]{{-1, 0}, {0, 1}, {0, -1}, {1, 0}};
-        for (int[] rowCol : directions) {
-            int tempRow = originalRow + rowCol[0], tempCol = originalCol + rowCol[1];
-            while ((tempRow >= 1) && (tempCol >= 1) && (tempRow <= 8) && (tempCol <= 8)) {
-                ChessPosition tempPosition = new ChessPosition(tempRow, tempCol);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                if (tempPiece == null) {
-                    moves.add(new ChessMove(position, tempPosition, null));
-                    tempRow += rowCol[0];
-                    tempCol += rowCol[1];
-                } else {
-                    if (tempPiece.getTeamColor() != piece.getTeamColor()) {
-                        moves.add(new ChessMove(position, tempPosition, null));
-                    }
-                    break;
-                }
-
-            }
-
-        }
-        return moves;
+        return formoves(directions, originalRow, originalCol, board, position, piece);
     }
     public ArrayList<ChessMove> pawnMoveCalculator(ChessBoard board, ChessPosition position, ChessPiece piece) {
         ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
