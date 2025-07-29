@@ -44,7 +44,7 @@ public class ServerFacade {
     public void logout() {
         var path = "/session";
         Map request = Map.of();
-        this.makeRequest("POST", path, request, null);
+        this.makeRequest("DELETE", path, request, null);
         this.authToken = null;
     }
 
@@ -72,9 +72,11 @@ public class ServerFacade {
             URL url = (new URI(serverURL + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
-            writeBody(request, http);
             http.addRequestProperty("Authorization", this.authToken);
+            if (!method.equals("GET")) {
+                http.setDoOutput(true);
+                writeBody(request, http);
+            }
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -96,7 +98,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status);
+            throw new ResponseException(status, "failure: " + status + new Gson().fromJson(new InputStreamReader(http.getErrorStream()), BlanketResponse.class));
         }
     }
 
