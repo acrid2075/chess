@@ -187,7 +187,6 @@ public class Main {
     static void observe(GameData gameData, String username) {
         ChessGame game = gameData.game();
         ChessBoard board = game.getBoard();
-        ChessPiece piece;
         int j;
         if (username.equals(gameData.blackUsername())) {
             System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
@@ -195,13 +194,7 @@ public class Main {
             for (int i = 8; i >= 1; i--) {
                 System.out.print(" " + (9 - i) + " ");
                 for (j = 8; j >= 1; j--) {
-                    System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
-                    piece = board.getPiece(new ChessPosition(i, j));
-                    String output = EscapeSequences.EMPTY;
-                    if (piece != null) {
-                        output = getPiece(piece.hashCode());
-                    };
-                    System.out.print(output);
+                    printSquare(i, j, board);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
                 System.out.print(" " + (9 - i) + " ");
@@ -216,13 +209,7 @@ public class Main {
         for (int i = 1; i <= 8; i++) {
             System.out.print(" " + (9 - i) + " ");
             for (j = 1; j <= 8; j++) {
-                System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
-                piece = board.getPiece(new ChessPosition(i, j));
-                String output = EscapeSequences.EMPTY;
-                if (piece != null) {
-                    output = getPiece(piece.hashCode());
-                };
-                System.out.print(output);
+                printSquare(i, j, board);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print(" " + (9 - i) + " ");
@@ -265,5 +252,15 @@ public class Main {
             case 15 -> EscapeSequences.BLACK_PAWN;
             default -> EscapeSequences.EMPTY;
         };
+    }
+
+    static private void printSquare(int i, int j, ChessBoard board) {
+        System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
+        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+        String output = EscapeSequences.EMPTY;
+        if (piece != null) {
+            output = getPiece(piece.hashCode());
+        };
+        System.out.print(output);
     }
 }
