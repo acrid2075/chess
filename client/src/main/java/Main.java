@@ -36,6 +36,10 @@ public class Main {
                 if (code.equals("quit")) {
                     break;
                 }
+                if (code.equals("clear")) {
+                    server.clear();
+                    continue;
+                }
                 if (code.equals("help")) {
                     System.out.println("register <USERNAME> <PASSWORD> <EMAIL> - to create an account");
                     System.out.println("login <USERNAME> <PASSWORD> - to play chess");
@@ -50,8 +54,14 @@ public class Main {
                     continue;
                 }
                 if (code.equals("login")) {
-                    BlanketResponse response = server.login(values[1], values[2]);
-                    if (response.message() != null) {
+                    try {
+                        BlanketResponse response = server.login(values[1], values[2]);
+                        if (response.message() != null) {
+                            System.out.println("Error in login, please try again");
+                            System.out.println();
+                            continue;
+                        }
+                    } catch (Exception e) {
                         System.out.println("Error in login, please try again");
                         System.out.println();
                         continue;
@@ -69,8 +79,14 @@ public class Main {
                     continue;
                 }
                 if (code.equals("register")) {
-                    BlanketResponse response = server.register(values[1], values[2], values[3]);
-                    if (response.message() != null) {
+                    try {
+                        BlanketResponse response = server.register(values[1], values[2], values[3]);
+                        if (response.message() != null) {
+                            System.out.println("Error in register, please try again");
+                            System.out.println();
+                            continue;
+                        }
+                    } catch (Exception e) {
                         System.out.println("Error in register, please try again");
                         System.out.println();
                         continue;
@@ -225,6 +241,9 @@ public class Main {
         Collection<GameData> games;
         HashMap<Integer, GameData> gameDict;
         if (response.games() != null) {
+            if (response.games().isEmpty()) {
+                System.out.println("No games currently active."); System.out.println(); return null;
+            }
             games = response.games(); int i = 1; gameDict = new HashMap<>();
             for (GameData game : games) {
                 System.out.printf("" + i + ") Name: " + game.gameName() + ", White: " + game.whiteUsername() +

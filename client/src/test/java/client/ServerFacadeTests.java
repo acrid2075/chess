@@ -16,7 +16,7 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        ServerFacade client = new ServerFacade("http://localhost:" + server.port);
+        client = new ServerFacade("http://localhost:" + port);
         
     }
 
@@ -28,16 +28,16 @@ public class ServerFacadeTests {
 
     @Test
     public void clearTestTrue() {
-        
         client.clear();
+        client.register("me", "my", "mo");
         assert ((client.listGames().games() == null) || client.listGames().games().isEmpty());
     }
 
     @Test
     public void clearTestFalse() {
-        
         client.clear();
-        client.login("andy", "p");
+        client.register("andy", "p", "acrid");
+        client.clear();
         boolean success = false;
         try{
             client.login("andy", "p");
@@ -127,7 +127,7 @@ public class ServerFacadeTests {
         client.createGame("game1");
         BlanketResponse response = client.listGames();
         assert (response != null);
-        assert (response.message() != null);
+        assert (response.message() == null);
     }
 
     @Test
@@ -171,9 +171,9 @@ public class ServerFacadeTests {
         
         client.clear();
         client.register("dan", "brown", "dan.brown@byu.edu");
-        client.createGame("game1");
+        BlanketResponse response = client.createGame("game1");
         client.listGames();
-        client.joinGame("BLACK", 1);
+        client.joinGame("BLACK", response.gameID());
         assert true;
     }
 
@@ -182,15 +182,15 @@ public class ServerFacadeTests {
         
         client.clear();
         client.register("dan", "brown", "dan.brown@byu.edu");
-        client.createGame("game1");
+        BlanketResponse response = client.createGame("game1");
         client.listGames();
-        client.joinGame("BLACK", 1);
+        client.joinGame("BLACK", response.gameID());
         client.logout();
         client.register("sam", "brown", "sam.brown@byu.edu");
         client.listGames();
         boolean success = false;
         try{
-            client.joinGame("BLACK", 1);
+            client.joinGame("BLACK", response.gameID());
         } catch (Exception e) {
             success = true;
         }
