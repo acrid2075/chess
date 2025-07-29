@@ -22,7 +22,7 @@ public class ServerFacade {
     public void clear() {
         var path = "/db";
         Map request = Map.of();
-        this.makeRequest("DELETE", path, request, null);
+        this.makeRequest("DELETE", path, request, BlanketResponse.class);
     }
 
     public BlanketResponse register(String username, String password, String email) {

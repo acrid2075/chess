@@ -16,9 +16,16 @@ public class Main {
 
         while (true) {
             try {
-                System.out.printf("[LOGGED_OUT] >>> ");
-                Scanner scanner = new Scanner(System.in);
-                String line = scanner.nextLine();
+                String line;
+                try {
+                    System.out.printf("[LOGGED_OUT] >>> ");
+                    Scanner scanner = new Scanner(System.in);
+                    line = scanner.nextLine();
+                } catch (Exception e) {
+                    System.out.println("Error in reading input.");
+                    System.out.println("");
+                    continue;
+                }
                 var values = line.split(" ");
                 if (values.length < 1) {
                     System.out.println("Please input a keyword.");
@@ -54,6 +61,7 @@ public class Main {
                     if (logged_in(server, values[1])) {
                         break;
                     }
+                    continue;
                 }
                 if (values.length < 4) {
                     System.out.println("Missing keywords.");
@@ -72,51 +80,38 @@ public class Main {
                     if (logged_in(server, values[1])) {
                         break;
                     }
+                    continue;
                 }
-            } catch (Exception e) {
-                System.out.println("An error occurred. Please contact the software provider.");
+                System.out.println("No valid keyword received. Please try again");
                 System.out.println();
+            } catch (Exception e) {
+                System.out.println("An unknown error has occurred. Please contact the software provider.");
+                System.out.println();
+                break;
             }
         }
     }
 
     static boolean logged_in(ServerFacade server, String username) { //returns true if quitting application
-        Collection<GameData> games;
-        HashMap<Integer, GameData> gameDict = new HashMap<>();
+        Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
         while (true) {
-            System.out.printf("[LOGGED_IN] >>> ");
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            var values = line.split(" ");
             try {
+                System.out.printf("[LOGGED_IN] >>> "); Scanner scanner = new Scanner(System.in);
+                String line = scanner.nextLine(); var values = line.split(" ");
                 if (values.length < 1) {
-                    System.out.println("Please input a keyword.");
-                    System.out.println();
+                    System.out.println("Please input a keyword."); System.out.println();
                     continue;
                 }
-            } catch (Exception e) {
-                System.out.println("An error has occurred.");
-                System.out.println();
-                continue;
-            }
-            String code = values[0];
-            try {
+                String code = values[0];
                 if (code.equals("help")) {
-                    System.out.println("create <NAME> - to create a game");
-                    System.out.println("list - games");
-                    System.out.println("join <ID> [WHITE|BLACK] - a game");
-                    System.out.println("observe <ID> - a game");
-                    System.out.println("logout - logs out the user");
-                    System.out.println("quit - to quit application");
-                    System.out.println("help - with possible commands");
-                    System.out.println();
+                    System.out.println("create <NAME> - to create a game"); System.out.println("list - games");
+                    System.out.println("join <ID> [WHITE|BLACK] - a game"); System.out.println("observe <ID> - a game");
+                    System.out.println("logout - logs out the user"); System.out.println("quit - to quit application");
+                    System.out.println("help - with possible commands"); System.out.println();
                     continue;
                 }
                 if (code.equals("logout")) {
-                    System.out.println("Logging out.");
-                    server.logout();
-                    System.out.println();
-                    return false;
+                    System.out.println("Logging out."); server.logout(); System.out.println(); return false;
                 }
                 if (code.equals("quit")) {
                     return true;
@@ -124,72 +119,73 @@ public class Main {
                 if (code.equals("list")) {
                     BlanketResponse response = server.listGames();
                     if (response.games() != null) {
-                        games = response.games();
-                        int i = 1;
-                        gameDict = new HashMap<>();
+                        games = response.games(); int i = 1; gameDict = new HashMap<>();
                         for (GameData game : games) {
                             System.out.printf("" + i + ") Name: " + game.gameName() + ", White: " + game.whiteUsername() +
                                     ", Black: " + game.blackUsername() + "%n");
                             gameDict.put(i++, game);
                         }
-                        System.out.println();
+                        System.out.println(); continue;
                     }
-                    continue;
+                    System.out.println("No games currently active."); System.out.println(); continue;
                 }
                 if (values.length < 2) {
-                    System.out.println("Missing keywords.");
-                    System.out.println();
-                    continue;
+                    System.out.println("Missing keywords."); System.out.println(); continue;
                 }
                 if (code.equals("create")) {
                     BlanketResponse response = server.createGame(values[1]);
                     if (response.message() != null) {
-                        System.out.println("Failed to create game.");
-                        System.out.println();
-                        continue;
+                        System.out.println("Failed to create game, try using a different game name.");
+                        System.out.println(); continue;
                     }
-                    System.out.println("Created game.");
-                    System.out.println();
-                    continue;
+                    System.out.println("Created game."); System.out.println(); continue;
+                }
+                if (code.equals("observe")) {
+                    int gameNum;
+                    try {
+                        gameNum = Integer.parseInt(values[1]);
+                    } catch (Exception e) {
+                        System.out.println("Game number was not a number."); System.out.println(); continue;
+                    }
+                    if (!gameDict.containsKey(gameNum)) {
+                        System.out.println("No game with that number. Please try again."); System.out.println(); continue;
+                    }
+                    try {
+                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); continue;
+                    } catch (Exception e) {
+                        System.out.println("Unsuccessful observing the game. "); System.out.println(); continue;
+                    }
+                }
+                if (values.length < 3) {
+                    System.out.println("Missing keywords."); System.out.println(); continue;
+                }
+                if (code.equals("join")) {
+                    int gameNum;
+                    try {
+                        gameNum = Integer.parseInt(values[1]);
+                    } catch (Exception e) {
+                        System.out.println("Game number was not a number.");
+                        System.out.println(); continue;
+                    }
+                    if (!gameDict.containsKey(gameNum)) {
+                        System.out.println("No game with that number. Please try again.");
+                        System.out.println(); continue;
+                    }
+                    if (!values[2].equals("WHITE") && !values[2].equals("BLACK")) {
+                        System.out.println("Invalid team color. Please try again, WHITE or BLACK.");
+                        System.out.println(); continue;
+                    }
+                    try {
+                        GameData game = gameDict.get(gameNum); server.joinGame(values[2], game.gameID());
+                        System.out.println("Successful in joining game " + values[1] + " as " + values[2] + ".");
+                        System.out.println();
+                    } catch (Exception e) {
+                        System.out.println("That color has already been claimed."); System.out.println();
+                    }
                 }
             } catch (Exception e) {
-                System.out.println("An error has occurred.");
-                System.out.println();
-                continue;
-            }
-            if (code.equals("observe")) {
-                int gameNum = 0;
-                try {
-                    gameNum = Integer.parseInt(values[1]);
-                } catch (Exception e) {
-                    System.out.println("Game number was not a number."); System.out.println(); continue;
-                }
-                try {
-                    GameData game = gameDict.get(gameNum);
-                    observe(game, username);
-                    System.out.println(); continue;
-                } catch (Exception e) {
-                    System.out.println("Unsuccessful observing the game."); System.out.println(); continue;
-                }
-            }
-            if (values.length < 3) {
-                System.out.println("Missing keywords."); System.out.println(); continue;
-            }
-            if (code.equals("join")) {
-                int gameNum = 0;
-                try {
-                    gameNum = Integer.parseInt(values[1]);
-                } catch (Exception e) {
-                    System.out.println("Game number was not a number."); System.out.println();
-                    continue;
-                }
-                try {
-                    GameData game = gameDict.get(gameNum);
-                    server.joinGame(values[2], game.gameID());
-                    System.out.println();
-                } catch (Exception e) {
-                    System.out.println("Unsuccessful joining the game."); System.out.println();
-                }
+                System.out.println("An unknown error has occurred. Please contact the software provider.");
+                System.out.println(); return true;
             }
         }
     }
@@ -200,11 +196,13 @@ public class Main {
         ChessPiece piece;
         int j;
         if (username.equals(gameData.blackUsername())) {
+            System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
+            System.out.println();
             for (int i = 8; i >= 1; i--) {
+                System.out.print(" " + (9 - i) + " ");
                 for (j = 8; j >= 1; j--) {
                     System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
                     piece = board.getPiece(new ChessPosition(i, j));
-
                     String output = EscapeSequences.EMPTY;
                     if (piece != null) {
                         output = switch (piece.hashCode()) {
@@ -227,12 +225,17 @@ public class Main {
                     System.out.print(output);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
+                System.out.print(" " + (9 - i) + " ");
                 System.out.println();
             }
+            System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
+            System.out.println();
             return;
         }
+        System.out.print("    A\u2003 B\u2003 C\u2003 D\u2003 E\u2003 F\u2003 G\u2003 H\u2003");
+        System.out.println();
         for (int i = 1; i <= 8; i++) {
-            System.out.println();
+            System.out.print(" " + (9 - i) + " ");
             for (j = 1; j <= 8; j++) {
                 System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
                 piece = board.getPiece(new ChessPosition(i, j));
@@ -258,8 +261,11 @@ public class Main {
                 System.out.print(output);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);
+            System.out.print(" " + (9 - i) + " ");
             System.out.println();
         }
+        System.out.print("    A\u2003 B\u2003 C\u2003 D\u2003 E\u2003 F\u2003 G\u2003 H\u2003");
+        System.out.println();
         return;
     }
 }

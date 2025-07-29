@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class Server {
 
+    public int port;
+
     public int run(int desiredPort) {
         try {
             DatabaseManager.createDatabase();
@@ -30,6 +32,7 @@ public class Server {
         UserService userService = new UserService(userDAO, authDAO);
 
         Spark.port(desiredPort);
+        this.port = desiredPort;
 
         Spark.staticFiles.location("web");
 
