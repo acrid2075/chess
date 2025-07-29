@@ -98,7 +98,8 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status + new Gson().fromJson(new InputStreamReader(http.getErrorStream()), BlanketResponse.class));
+            throw new ResponseException(status, "failure: " + status + new Gson().fromJson(
+                    new InputStreamReader(http.getErrorStream()), BlanketResponse.class));
         }
     }
 

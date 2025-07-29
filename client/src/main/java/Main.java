@@ -58,7 +58,7 @@ public class Main {
                     }
                     System.out.println("Successful login");
                     System.out.println();
-                    if (logged_in(server, values[1])) {
+                    if (loggedIn(server, values[1])) {
                         break;
                     }
                     continue;
@@ -77,7 +77,7 @@ public class Main {
                     }
                     System.out.println("Successful registration");
                     System.out.println();
-                    if (logged_in(server, values[1])) {
+                    if (loggedIn(server, values[1])) {
                         break;
                     }
                     continue;
@@ -92,7 +92,7 @@ public class Main {
         }
     }
 
-    static boolean logged_in(ServerFacade server, String username) { //returns true if quitting application
+    static boolean loggedIn(ServerFacade server, String username) { //returns true if quitting application
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
         while (true) {
             try {
@@ -117,17 +117,11 @@ public class Main {
                     return true;
                 }
                 if (code.equals("list")) {
-                    BlanketResponse response = server.listGames();
-                    if (response.games() != null) {
-                        games = response.games(); int i = 1; gameDict = new HashMap<>();
-                        for (GameData game : games) {
-                            System.out.printf("" + i + ") Name: " + game.gameName() + ", White: " + game.whiteUsername() +
-                                    ", Black: " + game.blackUsername() + "%n");
-                            gameDict.put(i++, game);
-                        }
-                        System.out.println(); continue;
+                    HashMap<Integer, GameData> temp = list(server);
+                    if (temp != null) {
+                        gameDict = temp;
                     }
-                    System.out.println("No games currently active."); System.out.println(); continue;
+                    continue;
                 }
                 if (values.length < 2) {
                     System.out.println("Missing keywords."); System.out.println(); continue;
@@ -205,22 +199,7 @@ public class Main {
                     piece = board.getPiece(new ChessPosition(i, j));
                     String output = EscapeSequences.EMPTY;
                     if (piece != null) {
-                        output = switch (piece.hashCode()) {
-                            case 0 -> EscapeSequences.WHITE_KING;
-                            case 1 -> EscapeSequences.WHITE_QUEEN;
-                            case 2 -> EscapeSequences.WHITE_BISHOP;
-                            case 3 -> EscapeSequences.WHITE_KNIGHT;
-                            case 4 -> EscapeSequences.WHITE_ROOK;
-                            case 5 -> EscapeSequences.WHITE_PAWN;
-                            case 10 -> EscapeSequences.BLACK_KING;
-                            case 11 -> EscapeSequences.BLACK_QUEEN;
-                            case 12 -> EscapeSequences.BLACK_BISHOP;
-                            case 13 -> EscapeSequences.BLACK_KNIGHT;
-                            case 14 -> EscapeSequences.BLACK_ROOK;
-                            case 15 -> EscapeSequences.BLACK_PAWN;
-
-                            default -> throw new IllegalStateException("Unexpected value: " + piece);
-                        };
+                        output = getPiece(piece.hashCode());
                     };
                     System.out.print(output);
                 }
@@ -241,22 +220,7 @@ public class Main {
                 piece = board.getPiece(new ChessPosition(i, j));
                 String output = EscapeSequences.EMPTY;
                 if (piece != null) {
-                    output = switch (piece.hashCode()) {
-                        case 0 -> EscapeSequences.WHITE_KING;
-                        case 1 -> EscapeSequences.WHITE_QUEEN;
-                        case 2 -> EscapeSequences.WHITE_BISHOP;
-                        case 3 -> EscapeSequences.WHITE_KNIGHT;
-                        case 4 -> EscapeSequences.WHITE_ROOK;
-                        case 5 -> EscapeSequences.WHITE_PAWN;
-                        case 10 -> EscapeSequences.BLACK_KING;
-                        case 11 -> EscapeSequences.BLACK_QUEEN;
-                        case 12 -> EscapeSequences.BLACK_BISHOP;
-                        case 13 -> EscapeSequences.BLACK_KNIGHT;
-                        case 14 -> EscapeSequences.BLACK_ROOK;
-                        case 15 -> EscapeSequences.BLACK_PAWN;
-
-                        default -> throw new IllegalStateException("Unexpected value: " + piece);
-                    };
+                    output = getPiece(piece.hashCode());
                 };
                 System.out.print(output);
             }
@@ -267,5 +231,39 @@ public class Main {
         System.out.print("    A\u2003 B\u2003 C\u2003 D\u2003 E\u2003 F\u2003 G\u2003 H\u2003");
         System.out.println();
         return;
+    }
+
+    static private HashMap<Integer, GameData> list(ServerFacade server) {
+        BlanketResponse response = server.listGames();
+        Collection<GameData> games;
+        HashMap<Integer, GameData> gameDict;
+        if (response.games() != null) {
+            games = response.games(); int i = 1; gameDict = new HashMap<>();
+            for (GameData game : games) {
+                System.out.printf("" + i + ") Name: " + game.gameName() + ", White: " + game.whiteUsername() +
+                        ", Black: " + game.blackUsername() + "%n");
+                gameDict.put(i++, game);
+            }
+            System.out.println(); return gameDict;
+        }
+        System.out.println("No games currently active."); System.out.println(); return null;
+    }
+
+    static private String getPiece(int hashCode){
+        return switch (hashCode) {
+            case 0 -> EscapeSequences.WHITE_KING;
+            case 1 -> EscapeSequences.WHITE_QUEEN;
+            case 2 -> EscapeSequences.WHITE_BISHOP;
+            case 3 -> EscapeSequences.WHITE_KNIGHT;
+            case 4 -> EscapeSequences.WHITE_ROOK;
+            case 5 -> EscapeSequences.WHITE_PAWN;
+            case 10 -> EscapeSequences.BLACK_KING;
+            case 11 -> EscapeSequences.BLACK_QUEEN;
+            case 12 -> EscapeSequences.BLACK_BISHOP;
+            case 13 -> EscapeSequences.BLACK_KNIGHT;
+            case 14 -> EscapeSequences.BLACK_ROOK;
+            case 15 -> EscapeSequences.BLACK_PAWN;
+            default -> EscapeSequences.EMPTY;
+        };
     }
 }
