@@ -54,21 +54,7 @@ public class Main {
                     continue;
                 }
                 if (code.equals("login")) {
-                    try {
-                        BlanketResponse response = server.login(values[1], values[2]);
-                        if (response.message() != null) {
-                            System.out.println("Error in login, please try again");
-                            System.out.println();
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Error in login, please try again");
-                        System.out.println();
-                        continue;
-                    }
-                    System.out.println("Successful login");
-                    System.out.println();
-                    if (loggedIn(server, values[1])) {
+                    if (login(server, values[1], values[2])) {
                         break;
                     }
                     continue;
@@ -79,21 +65,7 @@ public class Main {
                     continue;
                 }
                 if (code.equals("register")) {
-                    try {
-                        BlanketResponse response = server.register(values[1], values[2], values[3]);
-                        if (response.message() != null) {
-                            System.out.println("Error in register, please try again");
-                            System.out.println();
-                            continue;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Error in register, please try again");
-                        System.out.println();
-                        continue;
-                    }
-                    System.out.println("Successful registration");
-                    System.out.println();
-                    if (loggedIn(server, values[1])) {
+                    if (register(server, values[1], values[2], values[3])) {
                         break;
                     }
                     continue;
@@ -281,5 +253,47 @@ public class Main {
             output = getPiece(piece.hashCode());
         };
         System.out.print(output);
+    }
+
+    static private boolean login(ServerFacade server, String username, String password) {
+        try {
+            BlanketResponse response = server.login(username, password);
+            if (response.message() != null) {
+                System.out.println("Error in login, please try again");
+                System.out.println();
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Error in login, please try again");
+            System.out.println();
+            return false;
+        }
+        System.out.println("Successful login");
+        System.out.println();
+        if (loggedIn(server, username)) {
+            return true;
+        }
+        return false;
+    }
+
+    static private boolean register(ServerFacade server, String username, String password, String email) {
+        try {
+            BlanketResponse response = server.register(username, password, email);
+            if (response.message() != null) {
+                System.out.println("Error in register, please try again");
+                System.out.println();
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Error in register, please try again");
+            System.out.println();
+            return false;
+        }
+        System.out.println("Successful registration");
+        System.out.println();
+        if (loggedIn(server, username)) {
+            return true;
+        }
+        return false;
     }
 }
