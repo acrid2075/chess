@@ -17,6 +17,16 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
+    public ChessMove(String moveDetails) {
+        this.startPosition = new ChessPosition((int) moveDetails.charAt(1) - '0', "abcdefgh".indexOf(moveDetails.charAt(0)) + 1);
+        this.endPosition = new ChessPosition((int) moveDetails.charAt(3) - '0', "abcdefgh".indexOf(moveDetails.charAt(2)) + 1);
+        if (moveDetails.length() == 4) {
+            this.promotionPiece = null;
+        } else {
+            this.promotionPiece = ChessPiece.PieceType.values()["kqbnrp".indexOf(moveDetails.charAt(4))];
+        }
+    }
+
     /**
      * @return ChessPosition of starting location
      */
@@ -39,6 +49,18 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         return this.promotionPiece;
+    }
+
+    @Override
+    public String toString() {
+        ChessPosition start = this.getStartPosition();
+        ChessPosition end = this.getEndPosition();
+        if (this.getPromotionPiece() == null) {
+            return "" + "abcdefgh".charAt(start.getColumn() - 1) + start.getRow() + "abcdefgh".charAt(end.getColumn() - 1)
+                    + end.getRow();
+        }
+        return "" + "abcdefgh".charAt(start.getColumn() - 1) + start.getRow() + "abcdefgh".charAt(end.getColumn() - 1)
+                + end.getRow() + "kqbnrp".charAt(this.getPromotionPiece().ordinal());
     }
 
     @Override

@@ -1,18 +1,27 @@
 import chess.*;
+import com.google.gson.Gson;
+import dataaccess.SysGameDAO;
 import model.GameData;
 import response.BlanketResponse;
 import ui.EscapeSequences;
+import ui.GameUI;
 import ui.ServerFacade;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.ServerMessage;
+import websocketFacade.ServerMessageHandler;
+import websocketFacade.WebSocketFacade;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
+    public static final String url = "http://localhost:8080";
+
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
-        ServerFacade server = new ServerFacade("http://localhost:8080");
+        ServerFacade server = new ServerFacade(url);
 
         while (true) {
             try {
@@ -80,8 +89,26 @@ public class Main {
         }
     }
 
-    static boolean loggedIn(ServerFacade server, String username) { //returns true if quitting application
+    static boolean loggedIn(ServerFacade server, String username, String authToken) { //returns true if quitting application
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
+
+        ServerMessageHandler serverMessageHandler = serverMessage -> {
+            if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                System.out.println("An error has arisen. " + serverMessage.message);
+            }
+            if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                System.out.println(serverMessage.message);
+            }
+            if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+                SysGameDAO sysGameDAO = new SysGameDAO();
+                ChessGame game = sysGameDAO.togglejsonoff(loadGameMessage.game);
+                observe(new GameData(Integer.parseInt(loadGameMessage.gameID),
+                        loadGameMessage.whiteUsername, loadGameMessage.blackUsername,
+                        loadGameMessage.gameName, game), username);
+            }
+        };
+
         while (true) {
             try {
                 System.out.printf("[LOGGED_IN] >>> "); Scanner scanner = new Scanner(System.in);
@@ -105,7 +132,7 @@ public class Main {
                     return true;
                 }
                 if (code.equals("list")) {
-                    HashMap<Integer, GameData> temp = list(server);
+                    HashMap<Integer, GameData> temp = listGames(server);
                     if (temp != null) {
                         gameDict = temp;
                     }
@@ -159,17 +186,25 @@ public class Main {
                     }
                     try {
                         GameData game = gameDict.get(gameNum); server.joinGame(values[2], game.gameID());
-                        System.out.println("Successful in joining game " + values[1] + " as " + values[2] + ".");
-                        System.out.println();
                     } catch (Exception e) {
                         System.out.println("That color has already been claimed."); System.out.println();
+                        continue;
                     }
+                    System.out.println("Successful in joining game " + values[1] + " as " + values[2] + ".");
+                    System.out.println();
+                    GameData game = gameDict.get(gameNum);
+                    observe(game, username);
+                    WebSocketFacade webSocketFacade = new WebSocketFacade(url, serverMessageHandler);
+                    webSocketFacade.connectGame(authToken, game.gameID());
+                    GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username);
+                    gui.run();
                 }
             } catch (Exception e) {
                 System.out.println("An unknown error has occurred. Please contact the software provider.");
                 System.out.println(); return true;
             }
         }
+
     }
 
     static void observe(GameData gameData, String username) {
@@ -208,7 +243,7 @@ public class Main {
         return;
     }
 
-    static private HashMap<Integer, GameData> list(ServerFacade server) {
+    static private HashMap<Integer, GameData> listGames(ServerFacade server) {
         BlanketResponse response = server.listGames();
         Collection<GameData> games;
         HashMap<Integer, GameData> gameDict;
@@ -256,8 +291,10 @@ public class Main {
     }
 
     static private boolean login(ServerFacade server, String username, String password) {
+        String authToken;
         try {
             BlanketResponse response = server.login(username, password);
+            authToken = response.authToken();
             if (response.message() != null) {
                 System.out.println("Error in login, please try again");
                 System.out.println();
@@ -270,15 +307,17 @@ public class Main {
         }
         System.out.println("Successful login");
         System.out.println();
-        if (loggedIn(server, username)) {
+        if (loggedIn(server, username, authToken)) {
             return true;
         }
         return false;
     }
 
     static private boolean register(ServerFacade server, String username, String password, String email) {
+        String authToken;
         try {
             BlanketResponse response = server.register(username, password, email);
+            authToken = response.authToken();
             if (response.message() != null) {
                 System.out.println("Error in register, please try again");
                 System.out.println();
@@ -291,7 +330,7 @@ public class Main {
         }
         System.out.println("Successful registration");
         System.out.println();
-        if (loggedIn(server, username)) {
+        if (loggedIn(server, username, authToken)) {
             return true;
         }
         return false;
