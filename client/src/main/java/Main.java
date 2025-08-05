@@ -160,7 +160,10 @@ public class Main {
                         System.out.println("No game with that number. Please try again."); System.out.println(); continue;
                     }
                     try {
-                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); continue;
+                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, serverMessageHandler);
+                        webSocketFacade.connectGame(authToken, game.gameID());
+                        GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username);
+                        gui.run(); continue;
                     } catch (Exception e) {
                         System.out.println("Unsuccessful observing the game. "); System.out.println(); continue;
                     }
