@@ -24,8 +24,7 @@ public class ConnectionManager {
     }
 
     public void remove(String username, int gameID) {
-        connections.remove(username);
-        gameCrews.get(gameID).remove(username);
+        gameCrews.get(gameID).remove(connections.remove(username));
     }
 
     public void msg(String username, ServerMessage serverMessage) throws IOException {

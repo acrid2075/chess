@@ -32,6 +32,9 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+        if (!checkAuth(userGameCommand, session)) {
+            return;
+        }
         System.out.println(message);
         System.out.println(userGameCommand);
         System.out.println(userGameCommand.getCommandType());
@@ -49,7 +52,7 @@ public class WebSocketHandler {
 
     private boolean checkAuth(UserGameCommand userGameCommand, Session session) {
         Gson serializer = new Gson();
-        String message = serializer.toJson(new ServerMessage(ERROR, "Error: invalid authtoken.").toString());
+        String message = serializer.toJson(new ServerMessage(ERROR, "Error: invalid authtoken."));
         if (userService.getAuth(userGameCommand.getAuthToken()) == null) {
             try {
                 session.getRemote().sendString(message);
@@ -66,6 +69,12 @@ public class WebSocketHandler {
             AuthData authData = userService.getAuth(userGameCommand.getAuthToken());
             GameData gameData = gameService.getGame(userGameCommand.getGameID());
             String username = authData.username();
+            if (gameData == null) {
+                Gson serializer = new Gson();
+                String message = serializer.toJson(new ServerMessage(ERROR, "Error: nonexistent game."));
+                new Connection(username, userGameCommand.getAuthToken(), session, userGameCommand.getGameID()).send(message);
+                return;
+            }
             String role = (username.equals(gameData.whiteUsername())) ? "WHITE" : ((username.equals(gameData.blackUsername())) ? "BLACK" : "OBSERVER");
             connectionManager.add(username, userGameCommand.getAuthToken(), session, userGameCommand.getGameID());
             connectionManager.msg(username, new ServerMessage(LOAD_GAME, gameData.toJson()));
@@ -81,6 +90,13 @@ public class WebSocketHandler {
             SysGameDAO sysGameDAO = new SysGameDAO();
             MakeMoveCommand makeMoveCommand = new MakeMoveCommand(message);
             GameData gameData = gameService.getGame(makeMoveCommand.getGameID());
+            if (gameData.game().getTeamTurn() == null) {
+                try {
+                    connectionManager.msg(username, new ServerMessage(ERROR, "Error: game is over."));
+                } catch (Exception e) {
+                    System.out.println("Failed to send error message on game over.");
+                }
+            }
             if (gameData.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE)) {
                 if (username.equals(gameData.whiteUsername())) {
 
@@ -93,11 +109,11 @@ public class WebSocketHandler {
                             System.out.println("Sending game refresh");
                             connectionManager.broadcast("", serverMessage, gameID);
                             connectionManager.msg(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()));
-                            if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
-                            } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                            if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
                                 connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Checkmate. White wins"), gameData.gameID());
                                 gameService.gameOver(gameData.gameID());
+                            } else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                             } else if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
                                 connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Stalemate"), gameData.gameID());
                                 gameService.gameOver(gameData.gameID());

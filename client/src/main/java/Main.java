@@ -94,13 +94,13 @@ public class Main {
         ServerMessageHandler serverMessageHandler = serverMessage -> {
             System.out.println("Getting message: ");
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
-                System.out.println("An error has arisen. " + serverMessage.message);
+                System.out.println("An error has arisen. " + serverMessage.errorMessage);
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                 System.out.println(serverMessage.message);
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                GameData gameData = new GameData(serverMessage.message);
+                GameData gameData = new GameData(serverMessage.game);
                 observe(gameData, username);
             }
         };

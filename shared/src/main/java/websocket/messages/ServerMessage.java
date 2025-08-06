@@ -10,9 +10,9 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-    public String message;
-    public String game;
-    public String errorMessage;
+    public String message = null;
+    public String game = null;
+    public String errorMessage = null;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -22,9 +22,15 @@ public class ServerMessage {
 
     public ServerMessage(ServerMessageType type, String message) {
         this.serverMessageType = type;
-        this.message = message;
-        this.game = message;
-        this.errorMessage = message;
+        if (this.serverMessageType.equals(ServerMessageType.LOAD_GAME)) {
+            this.game = message;
+        }
+        if (this.serverMessageType.equals(ServerMessageType.ERROR)) {
+            this.errorMessage = message;
+        }
+        if (this.serverMessageType.equals(ServerMessageType.NOTIFICATION)) {
+            this.message = message;
+        }
     }
 
     public ServerMessageType getServerMessageType() {
