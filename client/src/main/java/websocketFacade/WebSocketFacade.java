@@ -17,12 +17,13 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     ServerMessageHandler serverMessageHandler;
+    private String username;
 
-
-    public WebSocketFacade(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public WebSocketFacade(String url, String username, ServerMessageHandler serverMessageHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
+            this.username = username;
             this.serverMessageHandler = serverMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -43,36 +44,36 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void connectGame(String authToken, int gameID) throws ResponseException {
+    public void connectGame(String authToken, int gameID, String role) throws ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, username, gameID, role);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void makeMove(String authToken, Integer gameID, ChessMove chessMove) throws ui.ResponseException {
+    public void makeMove(String authToken, Integer gameID, ChessMove chessMove, String role) throws ui.ResponseException {
         try {
-            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, chessMove);
+            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, username, gameID, role, chessMove);
             this.session.getBasicRemote().sendText(makeMoveCommand.toJson());
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void resignGame(String authToken, Integer gameID) throws ui.ResponseException {
+    public void resignGame(String authToken, Integer gameID, String role) throws ui.ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, username, gameID, role);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void leaveGame(String authToken, Integer gameID) throws ResponseException {
+    public void leaveGame(String authToken, Integer gameID, String role) throws ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, username, gameID, role);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
             this.session.close();
         } catch (IOException ex) {

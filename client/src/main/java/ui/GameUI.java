@@ -15,13 +15,15 @@ public class GameUI {
     ServerFacade server;
     static int gameID;
     String username;
+    String role;
 
-    public GameUI(WebSocketFacade webSocketFacade, String authToken, ServerFacade server, int gameID, String username) {
+    public GameUI(WebSocketFacade webSocketFacade, String authToken, ServerFacade server, int gameID, String username, String role) {
         this.webSocketFacade = webSocketFacade;
         this.authToken = authToken;
         this.server = server;
         this.gameID = gameID;
         this.username = username;
+        this.role = role;
     }
 
     public void run() {
@@ -54,7 +56,7 @@ public class GameUI {
                     continue;
                 }
                 if (code.equals("leave")) {
-                    webSocketFacade.leaveGame(authToken, gameID);
+                    webSocketFacade.leaveGame(authToken, gameID, role);
                     break;
                 }
                 if (code.equals("redraw")) {
@@ -62,7 +64,7 @@ public class GameUI {
                     continue;
                 }
                 if (code.equals("resign")) {
-                    webSocketFacade.resignGame(authToken, gameID);
+                    webSocketFacade.resignGame(authToken, gameID, role);
                     continue;
                 }
                 if (values.length < 2) {
@@ -78,7 +80,7 @@ public class GameUI {
                 if (code.equals("move")) {
                     String location = values[1];
                     ChessMove move = new ChessMove(location);
-                    webSocketFacade.makeMove(authToken, gameID, move);
+                    webSocketFacade.makeMove(authToken, gameID, move, role);
                     continue;
                 }
             } catch (Exception e) {

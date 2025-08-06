@@ -8,14 +8,16 @@ import java.util.Objects;
 
 public class MakeMoveCommand extends UserGameCommand {
     public ChessMove chessMove;
-    public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove chessMove) {
-        super(commandType, authToken, gameID);
+    public MakeMoveCommand(CommandType commandType, String authToken, String username, Integer gameID, String role, ChessMove chessMove) {
+        super(commandType, authToken, username, gameID, role);
         this.chessMove = chessMove;
     }
 
+
+    @Override
     public String toJson() {
         Gson serializer = new Gson();
-        return serializer.toJson(Map.of("CommandType", this.getCommandType(), "authToken", this.getAuthToken(), "gameID", this.getGameID(), "chessMove", this.chessMove.toString()));
+        return serializer.toJson(Map.of("CommandType", this.getCommandType(), "authToken", this.getAuthToken(), "username", this.username, "gameID", this.getGameID(), "role", role, "chessMove", this.chessMove.toString()));
     }
 
     @Override

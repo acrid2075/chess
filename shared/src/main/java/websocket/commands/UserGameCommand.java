@@ -1,5 +1,8 @@
 package websocket.commands;
 
+import com.google.gson.Gson;
+
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,12 +17,18 @@ public class UserGameCommand {
 
     private final String authToken;
 
+    public final String username;
+
     private final Integer gameID;
 
-    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+    public final String role;
+
+    public UserGameCommand(CommandType commandType, String authToken, String username, Integer gameID, String role) {
         this.commandType = commandType;
         this.authToken = authToken;
+        this.username = username;
         this.gameID = gameID;
+        this.role = role;
     }
 
     public enum CommandType {
@@ -27,6 +36,11 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN
+    }
+
+    public String toJson() {
+        Gson serializer = new Gson();
+        return serializer.toJson(Map.of("CommandType", this.getCommandType(), "authToken", this.getAuthToken(), "username", this.username, "role", role, "gameID", this.getGameID()));
     }
 
     public CommandType getCommandType() {

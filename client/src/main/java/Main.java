@@ -160,9 +160,9 @@ public class Main {
                         System.out.println("No game with that number. Please try again."); System.out.println(); continue;
                     }
                     try {
-                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, serverMessageHandler);
-                        webSocketFacade.connectGame(authToken, game.gameID());
-                        GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username);
+                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
+                        webSocketFacade.connectGame(authToken, game.gameID(), "observer");
+                        GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
                         gui.run(); continue;
                     } catch (Exception e) {
                         System.out.println("Unsuccessful observing the game. "); System.out.println(); continue;
@@ -197,9 +197,9 @@ public class Main {
                     System.out.println();
                     GameData game = gameDict.get(gameNum);
                     observe(game, username);
-                    WebSocketFacade webSocketFacade = new WebSocketFacade(url, serverMessageHandler);
-                    webSocketFacade.connectGame(authToken, game.gameID());
-                    GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username);
+                    WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
+                    webSocketFacade.connectGame(authToken, game.gameID(), values[2]);
+                    GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
                     gui.run();
                 }
             } catch (Exception e) {

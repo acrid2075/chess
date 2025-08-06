@@ -183,6 +183,30 @@ public class SysGameDAO implements GameDAO {
     }
 
     @Override
+    public GameData updateBoard(int gameID, String username, ChessGame chessGame) {
+        GameData gameData;
+        int id;
+        String whiteUsername = "";
+        String blackUsername = "";
+        String gameName = "";
+        String game = "";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("UPDATE games SET game=? WHERE id=?")) {
+                preparedStatement.setString(1, togglejsonon(chessGame));
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            return new GameData(gameID,
+                    username, blackUsername, gameName, togglejsonoff(game));
+
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public boolean isGame(String gameName) {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement("SELECT id FROM games WHERE gameName=?")) {
@@ -197,6 +221,65 @@ public class SysGameDAO implements GameDAO {
             throw new RuntimeException(e);
         }
         return false;
+    }
+
+    @Override
+    public void gameOver(int gameID) {
+        GameData gameData;
+        int id;
+        String whiteUsername = "";
+        String blackUsername = "";
+        String gameName = "";
+        String game = "";
+        ChessGame chessGame = new ChessGame(); //Look here if weird errors
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id FROM games WHERE gameName=?")) {
+                preparedStatement.setString(1, gameName);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        chessGame = togglejsonoff(rs.getString("game"));
+                        chessGame.setTeamTurn(null);
+                    }
+                }
+            }
+
+            try (var preparedStatement = conn.prepareStatement("UPDATE games SET game=? WHERE id=?")) {
+                preparedStatement.setString(1, togglejsonon(chessGame));
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void leaveGame(int gameID, String playerColor) {
+        GameData gameData;
+        int id;
+        String whiteUsername = "";
+        String blackUsername = "";
+        String gameName = "";
+        String game = "";
+        if ((!playerColor.equals("WHITE")) && (!playerColor.equals("BLACK"))) {
+            return;
+        }
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement("UPDATE games SET ?=? WHERE id=?")) {
+                preparedStatement.setString(1, playerColor.equals("WHITE") ? "whiteUsername" : "blackUsername");
+                preparedStatement.setString(2, null);
+                preparedStatement.setInt(3, gameID);
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ChessGame togglejsonoff (String jsoncontent) {
@@ -245,7 +328,7 @@ public class SysGameDAO implements GameDAO {
 
         ChessGame output = new ChessGame();
         output.setBoard(board);
-        output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
+        output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
         return output;
     }
 
@@ -268,7 +351,7 @@ public class SysGameDAO implements GameDAO {
                 Map.entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN), "P")
         );
 
-        HashMap<String, String> args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : "BLACK"));
+        HashMap<String, String> args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
 
         for (char c = 'a'; c <= 'h'; c++) {
             for (char d = '1'; d <= '8'; d++) {

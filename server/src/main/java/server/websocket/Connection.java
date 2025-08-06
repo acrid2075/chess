@@ -7,10 +7,12 @@ public class Connection {
     public String username;
     public String authToken;
     public Session session;
-    public Connection(String username, String authToken, Session session) {
+    public int gameID;
+    public Connection(String username, String authToken, Session session, int gameID) {
         this.username = username;
         this.authToken = authToken;
         this.session = session;
+        this.gameID = gameID;
     }
 
     public void send(String message) throws IOException {

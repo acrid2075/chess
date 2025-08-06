@@ -1,5 +1,9 @@
 package service;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -37,5 +41,23 @@ public class GameService {
 
     public GameData getGame(int gameID) {
         return this.gameDAO.getGame(gameID);
+    }
+
+    public GameData makeMove(int gameID, String username, ChessMove chessMove) throws InvalidMoveException {
+        ChessGame game = this.gameDAO.getGame(gameID).game();
+        game.makeMove(chessMove);
+        return this.gameDAO.updateBoard(gameID, username, game);
+    }
+
+    public void gameOver(int gameID) {
+        this.gameDAO.gameOver(gameID);
+    }
+
+    public void leaveGame(int gameID, String username) {
+        GameData gameData = getGame(gameID);
+        if (username.equals(gameData.whiteUsername())) {
+            this.gameDAO.leaveGame(gameID, "WHITE");
+        }
+        this.gameDAO.leaveGame(gameID, "BLACK");
     }
 }

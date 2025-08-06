@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import server.websocket.WebSocketHandler;
 import spark.*;
 import service.*;
 import requests.*;
@@ -17,6 +18,23 @@ import java.util.Map;
 public class Server {
 
     public int port;
+    private final WebSocketHandler webSocketHandler;
+    public final GameDAO gameDAO;
+    public final AuthDAO authDAO;
+    public final UserDAO userDAO;
+    public final ClearService clearService;
+    public final GameService gameService;
+    public final UserService userService;
+
+    public Server() {
+        gameDAO = new SysGameDAO();
+        authDAO = new SysAuthDAO();
+        userDAO = new SysUserDAO();
+        clearService = new ClearService(gameDAO, userDAO, authDAO);
+        gameService = new GameService(gameDAO);
+        userService = new UserService(userDAO, authDAO);
+        webSocketHandler = new WebSocketHandler(gameService);
+    }
 
     public int run(int desiredPort) {
         try {
@@ -24,17 +42,13 @@ public class Server {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        GameDAO gameDAO = new SysGameDAO();
-        AuthDAO authDAO = new SysAuthDAO();
-        UserDAO userDAO = new SysUserDAO();
-        ClearService clearService = new ClearService(gameDAO, userDAO, authDAO);
-        GameService gameService = new GameService(gameDAO);
-        UserService userService = new UserService(userDAO, authDAO);
 
         Spark.port(desiredPort);
         this.port = desiredPort;
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
 

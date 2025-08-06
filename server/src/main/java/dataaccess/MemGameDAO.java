@@ -3,7 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import model.GameData;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
@@ -59,5 +58,32 @@ public class MemGameDAO implements GameDAO {
         return gamedata.get(currentGameData.gameID());
     }
 
+    @Override
+    public GameData updateBoard(int gameID, String username, ChessGame chessGame) {
+        GameData currentGameData = gamedata.get(gameID);
+        gamedata.replace(gameID, new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), currentGameData.blackUsername(),
+                currentGameData.gameName(), chessGame));
+        return gamedata.get(currentGameData.gameID());
+    }
+
+    @Override
+    public void gameOver(int gameID) {
+        GameData currentGameData = gamedata.get(gameID);
+        ChessGame game = currentGameData.game();
+        game.setTeamTurn(null);
+        gamedata.replace(gameID, new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), currentGameData.blackUsername(),
+                currentGameData.gameName(), game));
+    }
+
+    @Override
+    public void leaveGame(int gameID, String playerColor) {
+        GameData currentGameData = gamedata.get(gameID);
+        if (Objects.equals(playerColor, "BLACK")) {
+            gamedata.replace(currentGameData.gameID(), new GameData(currentGameData.gameID(),
+                    currentGameData.whiteUsername(), null, currentGameData.gameName(), currentGameData.game()));
+        }
+        gamedata.replace(gameID, new GameData(currentGameData.gameID(), null, currentGameData.blackUsername(),
+                currentGameData.gameName(), currentGameData.game()));
+    }
 
 }
