@@ -18,8 +18,8 @@ public class ChessMove {
     }
 
     public ChessMove(String moveDetails) {
-        this.startPosition = new ChessPosition((int) moveDetails.charAt(1) - '0', "abcdefgh".indexOf(moveDetails.charAt(0)) + 1);
-        this.endPosition = new ChessPosition((int) moveDetails.charAt(3) - '0', "abcdefgh".indexOf(moveDetails.charAt(2)) + 1);
+        this.startPosition = new ChessPosition(9 - ((int) moveDetails.charAt(1) - '0'), "abcdefgh".indexOf(moveDetails.charAt(0)) + 1);
+        this.endPosition = new ChessPosition(9 - ((int) moveDetails.charAt(3) - '0'), "abcdefgh".indexOf(moveDetails.charAt(2)) + 1);
         if (moveDetails.length() == 4) {
             this.promotionPiece = null;
         } else {

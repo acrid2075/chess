@@ -184,8 +184,6 @@ public class SysGameDAO implements GameDAO {
 
     @Override
     public GameData updateBoard(int gameID, String username, ChessGame chessGame) {
-        GameData gameData;
-        int id;
         String whiteUsername = "";
         String blackUsername = "";
         String gameName = "";
@@ -198,8 +196,19 @@ public class SysGameDAO implements GameDAO {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?")) {
+                preparedStatement.setString(1, "" + gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    while (rs.next()) {
+                        whiteUsername = rs.getString("whiteUsername");
+                        blackUsername = rs.getString("blackUsername");
+                        gameName = rs.getString("gameName");
+                        game = rs.getString("game");
+                    }
+                }
+            }
             return new GameData(gameID,
-                    username, blackUsername, gameName, togglejsonoff(game));
+                    whiteUsername, blackUsername, gameName, togglejsonoff(game));
 
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);

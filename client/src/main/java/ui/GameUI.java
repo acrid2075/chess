@@ -130,7 +130,7 @@ public class GameUI {
                 for (j = 8; j >= 1; j--) {
                     if (new ChessPosition(i, j).equals(highlightPosition)) {
                         printSquare(i, j, board, false, true);
-                    } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(9 - i, j), null))) {
+                    } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
                         printSquare(i, j, board, true, false);
                     } else {
                         printSquare(i, j, board, false, false);

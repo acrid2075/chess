@@ -30,9 +30,12 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                serverMessageHandler.notify(notification);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                public void onMessage(String message) {
+                    System.out.println("Message received.");
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                    serverMessageHandler.notify(notification);
+                }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -42,6 +45,7 @@ public class WebSocketFacade extends Endpoint {
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+        System.out.println("Websocket connected.");
     }
 
     public void connectGame(String authToken, int gameID, String role) throws ResponseException {

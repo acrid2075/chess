@@ -13,7 +13,6 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.GameService;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand.CommandType.*;
 
@@ -55,15 +54,22 @@ public class WebSocketHandler {
 
     private void makeMove(UserGameCommand userGameCommand, String message, Session session, GameService gameService) {
         SysGameDAO sysGameDAO = new SysGameDAO();
-        MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
+        MakeMoveCommand makeMoveCommand = new MakeMoveCommand(message);
         GameData gameData = gameService.getGame(makeMoveCommand.getGameID());
+        
         if (gameData.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE)) {
-            if (gameData.whiteUsername().equals(makeMoveCommand.username)) {
+            
+            if (makeMoveCommand.username.equals(gameData.whiteUsername())) {
+                
                 try {
-                    if (gameData.game().validMoves(makeMoveCommand.chessMove.getStartPosition()).contains(makeMoveCommand.chessMove)) {
-                        gameData = gameService.makeMove(makeMoveCommand.getGameID(), makeMoveCommand.username, makeMoveCommand.chessMove);
-                        connectionManager.broadcast("", new LoadGameMessage(LOAD_GAME, "", "" + gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), sysGameDAO.togglejsonon(gameData.game())), gameData.gameID());
-                        connectionManager.msg(makeMoveCommand.username, new ServerMessage(NOTIFICATION, makeMoveCommand.chessMove.toString()));
+                    if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(makeMoveCommand.move)) {
+                        
+                        gameData = gameService.makeMove(makeMoveCommand.getGameID(), makeMoveCommand.username, makeMoveCommand.move);
+                        ServerMessage serverMessage = new ServerMessage(LOAD_GAME, gameData.toJson());
+                        int gameID = gameData.gameID();
+                        System.out.println("Sending game refresh");
+                        connectionManager.broadcast("", serverMessage, gameID);
+                        connectionManager.msg(makeMoveCommand.username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()));
                         if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                         } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
@@ -73,24 +79,27 @@ public class WebSocketHandler {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Stalemate"), gameData.gameID());
                             gameService.gameOver(gameData.gameID());
                         }
+                        
                     } else {
                         connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));
                     }
                 } catch (Exception e) {
-                    try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));} catch (Exception f) {
+                    System.out.println(e.toString());
+                    System.out.println(e.getMessage());
+                    try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));} catch (Exception f) {throw new RuntimeException(f.getMessage());
                     }
                 }
             } else {
-                try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: not your turn"));} catch (Exception f) {
+                try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: not your turn"));} catch (Exception f) {throw new RuntimeException(f.getMessage());
                 }
             }
         } else {
-            if (gameData.blackUsername().equals(makeMoveCommand.username)) {
+            if (makeMoveCommand.username.equals(gameData.blackUsername())) {
                 try {
-                    if (gameData.game().validMoves(makeMoveCommand.chessMove.getStartPosition()).contains(makeMoveCommand.chessMove)) {
-                        gameData = gameService.makeMove(makeMoveCommand.getGameID(), makeMoveCommand.username, makeMoveCommand.chessMove);
-                        connectionManager.broadcast("", new LoadGameMessage(LOAD_GAME, "", "" + gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), sysGameDAO.togglejsonon(gameData.game())), gameData.gameID());
-                        connectionManager.msg(makeMoveCommand.username, new ServerMessage(NOTIFICATION, makeMoveCommand.chessMove.toString()));
+                    if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(makeMoveCommand.move)) {
+                        gameData = gameService.makeMove(makeMoveCommand.getGameID(), makeMoveCommand.username, makeMoveCommand.move);
+                        connectionManager.broadcast("", new ServerMessage(LOAD_GAME, gameData.toJson()), gameData.gameID());
+                        connectionManager.msg(makeMoveCommand.username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()));
                         if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                         } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
@@ -104,11 +113,11 @@ public class WebSocketHandler {
                         connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));
                     }
                 } catch (Exception e) {
-                    try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));} catch (Exception f) {
+                    try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));} catch (Exception f) {throw new RuntimeException(f.getMessage());
                     }
                 }
             } else {
-                try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: not your turn"));} catch (Exception f) {
+                try {connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: not your turn"));} catch (Exception f) {throw new RuntimeException(f.getMessage());
                 }
             }
         }
@@ -118,20 +127,13 @@ public class WebSocketHandler {
         String username = userGameCommand.username;
         GameData gameData = gameService.getGame(userGameCommand.getGameID());
         if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
-            try {
-                connectionManager.msg(username, new ServerMessage(ERROR, "hmm"));
-            } catch (Exception e) {}
             return;
         }
-        try {
-            connectionManager.msg(username, new ServerMessage(ERROR, "hmm"));
-        } catch (Exception e) {}
         gameService.leaveGame(userGameCommand.getGameID(), username);
         try {
             connectionManager.remove(username, userGameCommand.getGameID());
             connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, username + " has left the game."), userGameCommand.getGameID());
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {throw new RuntimeException("failed to broadcast leave notification");}
     }
 
     private void resign(UserGameCommand userGameCommand, Session session, GameService gameService) {
@@ -140,13 +142,13 @@ public class WebSocketHandler {
         if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
             try {
                 connectionManager.msg(username, new ServerMessage(ERROR, "Error: not a player."));
-            } catch (Exception e) {}
+            } catch (Exception e) {throw new RuntimeException("failed to send error message");}
             return;
         }
         gameService.gameOver(gameData.gameID());
         try {
             connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, username + ", " + (username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK") + ", has resigned."), userGameCommand.getGameID());
-        } catch (Exception e) {
+        } catch (Exception e) {throw new RuntimeException("failed to notification");
         }
     }
 }

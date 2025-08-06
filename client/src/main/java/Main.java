@@ -6,7 +6,6 @@ import response.BlanketResponse;
 import ui.EscapeSequences;
 import ui.GameUI;
 import ui.ServerFacade;
-import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 import websocketFacade.ServerMessageHandler;
 import websocketFacade.WebSocketFacade;
@@ -93,6 +92,7 @@ public class Main {
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
 
         ServerMessageHandler serverMessageHandler = serverMessage -> {
+            System.out.println("Getting message: ");
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                 System.out.println("An error has arisen. " + serverMessage.message);
             }
@@ -100,12 +100,8 @@ public class Main {
                 System.out.println(serverMessage.message);
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
-                SysGameDAO sysGameDAO = new SysGameDAO();
-                ChessGame game = sysGameDAO.togglejsonoff(loadGameMessage.game);
-                observe(new GameData(Integer.parseInt(loadGameMessage.gameID),
-                        loadGameMessage.whiteUsername, loadGameMessage.blackUsername,
-                        loadGameMessage.gameName, game), username);
+                GameData gameData = new GameData(serverMessage.message);
+                observe(gameData, username);
             }
         };
 
@@ -195,7 +191,9 @@ public class Main {
                     }
                     System.out.println("Successful in joining game " + values[1] + " as " + values[2] + ".");
                     System.out.println();
+                    gameDict = listGames(server);
                     GameData game = gameDict.get(gameNum);
+                    System.out.println(game);
                     observe(game, username);
                     WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
                     webSocketFacade.connectGame(authToken, game.gameID(), values[2]);

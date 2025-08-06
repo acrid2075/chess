@@ -66,7 +66,6 @@ public class ServerFacade {
         this.makeRequest("PUT", path, request, null);
     }
 
-
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) {
         try {
             URL url = (new URI(serverURL + path)).toURL();
