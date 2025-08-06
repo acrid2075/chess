@@ -33,7 +33,7 @@ public class Server {
         clearService = new ClearService(gameDAO, userDAO, authDAO);
         gameService = new GameService(gameDAO);
         userService = new UserService(userDAO, authDAO);
-        webSocketHandler = new WebSocketHandler(gameService);
+        webSocketHandler = new WebSocketHandler(gameService, userService);
     }
 
     public int run(int desiredPort) {

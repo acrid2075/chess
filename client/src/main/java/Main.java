@@ -156,7 +156,7 @@ public class Main {
                         System.out.println("No game with that number. Please try again."); System.out.println(); continue;
                     }
                     try {
-                        GameData game = gameDict.get(gameNum); observe(game, username); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
+                        GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
                         webSocketFacade.connectGame(authToken, game.gameID(), "observer");
                         GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
                         gui.run(); continue;
@@ -194,7 +194,7 @@ public class Main {
                     gameDict = listGames(server);
                     GameData game = gameDict.get(gameNum);
                     System.out.println(game);
-                    observe(game, username);
+//                    observe(game, username);
                     WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
                     webSocketFacade.connectGame(authToken, game.gameID(), values[2]);
                     GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
@@ -215,13 +215,13 @@ public class Main {
         if (username.equals(gameData.blackUsername())) {
             System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
             System.out.println();
-            for (int i = 8; i >= 1; i--) {
-                System.out.print(" " + (9 - i) + " ");
+            for (int i = 1; i <= 8; i++) {
+                System.out.print(" " + (i) + " ");
                 for (j = 8; j >= 1; j--) {
                     printSquare(i, j, board);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
-                System.out.print(" " + (9 - i) + " ");
+                System.out.print(" " + (i) + " ");
                 System.out.println();
             }
             System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
@@ -230,13 +230,13 @@ public class Main {
         }
         System.out.print("    A\u2003 B\u2003 C\u2003 D\u2003 E\u2003 F\u2003 G\u2003 H\u2003");
         System.out.println();
-        for (int i = 1; i <= 8; i++) {
-            System.out.print(" " + (9 - i) + " ");
+        for (int i = 8; i >= 1; i--) {
+            System.out.print(" " + (i) + " ");
             for (j = 1; j <= 8; j++) {
                 printSquare(i, j, board);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);
-            System.out.print(" " + (9 - i) + " ");
+            System.out.print(" " + (i) + " ");
             System.out.println();
         }
         System.out.print("    A\u2003 B\u2003 C\u2003 D\u2003 E\u2003 F\u2003 G\u2003 H\u2003");
@@ -265,18 +265,18 @@ public class Main {
 
     static private String getPiece(int hashCode){
         return switch (hashCode) {
-            case 0 -> EscapeSequences.WHITE_KING;
-            case 1 -> EscapeSequences.WHITE_QUEEN;
-            case 2 -> EscapeSequences.WHITE_BISHOP;
-            case 3 -> EscapeSequences.WHITE_KNIGHT;
-            case 4 -> EscapeSequences.WHITE_ROOK;
-            case 5 -> EscapeSequences.WHITE_PAWN;
-            case 10 -> EscapeSequences.BLACK_KING;
-            case 11 -> EscapeSequences.BLACK_QUEEN;
-            case 12 -> EscapeSequences.BLACK_BISHOP;
-            case 13 -> EscapeSequences.BLACK_KNIGHT;
-            case 14 -> EscapeSequences.BLACK_ROOK;
-            case 15 -> EscapeSequences.BLACK_PAWN;
+            case 0 -> EscapeSequences.BLACK_KING;
+            case 1 -> EscapeSequences.BLACK_QUEEN;
+            case 2 -> EscapeSequences.BLACK_BISHOP;
+            case 3 -> EscapeSequences.BLACK_KNIGHT;
+            case 4 -> EscapeSequences.BLACK_ROOK;
+            case 5 -> EscapeSequences.BLACK_PAWN;
+            case 10 -> EscapeSequences.WHITE_KING;
+            case 11 -> EscapeSequences.WHITE_QUEEN;
+            case 12 -> EscapeSequences.WHITE_BISHOP;
+            case 13 -> EscapeSequences.WHITE_KNIGHT;
+            case 14 -> EscapeSequences.WHITE_ROOK;
+            case 15 -> EscapeSequences.WHITE_PAWN;
             default -> EscapeSequences.EMPTY;
         };
     }

@@ -45,6 +45,8 @@ public class GameService {
 
     public GameData makeMove(int gameID, String username, ChessMove chessMove) throws InvalidMoveException {
         ChessGame game = this.gameDAO.getGame(gameID).game();
+        System.out.println(game.getTeamTurn());
+        System.out.println(game.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor());
         game.makeMove(chessMove);
         return this.gameDAO.updateBoard(gameID, username, game);
     }

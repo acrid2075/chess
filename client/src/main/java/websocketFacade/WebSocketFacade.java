@@ -50,7 +50,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void connectGame(String authToken, int gameID, String role) throws ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, username, gameID, role);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -59,7 +59,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void makeMove(String authToken, Integer gameID, ChessMove chessMove, String role) throws ui.ResponseException {
         try {
-            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, username, gameID, role, chessMove);
+            MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, chessMove);
             this.session.getBasicRemote().sendText(makeMoveCommand.toJson());
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -68,7 +68,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void resignGame(String authToken, Integer gameID, String role) throws ui.ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, username, gameID, role);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(userGameCommand.toJson());
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
@@ -78,7 +78,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void leaveGame(String authToken, Integer gameID, String role) throws ResponseException {
         try {
-            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, username, gameID, role);
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
             this.session.close();
         } catch (IOException ex) {
