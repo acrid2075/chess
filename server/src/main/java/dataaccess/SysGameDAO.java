@@ -268,13 +268,22 @@ public class SysGameDAO implements GameDAO {
             return;
         }
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("UPDATE games SET ?=? WHERE id=?")) {
-                preparedStatement.setString(1, playerColor.equals("WHITE") ? "whiteUsername" : "blackUsername");
-                preparedStatement.setString(2, null);
-                preparedStatement.setInt(3, gameID);
-                preparedStatement.executeUpdate();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            if (playerColor.equals("WHITE")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET whiteUsername=? WHERE id=?")) {
+                    preparedStatement.setString(1, null);
+                    preparedStatement.setInt(2, gameID);
+                    preparedStatement.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?")) {
+                    preparedStatement.setString(1, null);
+                    preparedStatement.setInt(2, gameID);
+                    preparedStatement.executeUpdate();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
 
         } catch (SQLException | DataAccessException e) {

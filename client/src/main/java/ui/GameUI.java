@@ -5,6 +5,7 @@ import model.GameData;
 import response.BlanketResponse;
 import websocketFacade.WebSocketFacade;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -69,12 +70,13 @@ public class GameUI {
                 }
                 if (values.length < 2) {
                     System.out.println("Missing keywords.");
+                    System.out.println(values[0]);
                     System.out.println();
                     continue;
                 }
                 if (code.equals("highlight")) {
                     String location = values[1];
-                    seeGame(game, username, new ChessPosition((int) location.charAt(1) - '0', (int) location.charAt(0) - 'a' + 1));
+                    seeGame(game, username, new ChessPosition(9 - ((int) location.charAt(1) - '0'), (int) location.charAt(0) - 'a' + 1));
                     continue;
                 }
                 if (code.equals("move")) {
@@ -84,7 +86,7 @@ public class GameUI {
                     continue;
                 }
             } catch (Exception e) {
-                System.out.println("An unknown error has occurred. Please contact the software provider.");
+                System.out.println("An unknown error has occurred. Please contact the software provider." + e.getMessage());
                 System.out.println(); return;
             }
         }
@@ -113,7 +115,12 @@ public class GameUI {
     static void seeGame(GameData gameData, String username, ChessPosition highlightPosition) {
         ChessGame game = gameData.game();
         ChessBoard board = game.getBoard();
-        Collection<ChessMove> validMoveList = game.validMoves(highlightPosition);
+        Collection<ChessMove> validMoveList;
+        if (highlightPosition == null) {
+            validMoveList = new ArrayList<ChessMove>();
+        } else {
+            validMoveList = game.validMoves(highlightPosition);
+        }
         int j;
         if (username.equals(gameData.blackUsername())) {
             System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
@@ -123,7 +130,7 @@ public class GameUI {
                 for (j = 8; j >= 1; j--) {
                     if (new ChessPosition(i, j).equals(highlightPosition)) {
                         printSquare(i, j, board, false, true);
-                    } else if (validMoveList.contains(new ChessPosition(i, j))) {
+                    } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(9 - i, j), null))) {
                         printSquare(i, j, board, true, false);
                     } else {
                         printSquare(i, j, board, false, false);
@@ -144,7 +151,7 @@ public class GameUI {
             for (j = 1; j <= 8; j++) {
                 if (new ChessPosition(i, j).equals(highlightPosition)) {
                     printSquare(i, j, board, false, true);
-                } else if (validMoveList.contains(new ChessPosition(i, j))) {
+                } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
                     printSquare(i, j, board, true, false);
                 } else {
                     printSquare(i, j, board, false, false);

@@ -60,8 +60,10 @@ public class WebSocketHandler {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                         } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Checkmate. White wins"), gameData.gameID());
+                            gameService.gameOver(gameData.gameID());
                         } else if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Stalemate"), gameData.gameID());
+                            gameService.gameOver(gameData.gameID());
                         }
                     } else {
                         connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));
@@ -85,8 +87,10 @@ public class WebSocketHandler {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                         } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Checkmate. Black wins"), gameData.gameID());
+                            gameService.gameOver(gameData.gameID());
                         } else if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
                             connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Stalemate"), gameData.gameID());
+                            gameService.gameOver(gameData.gameID());
                         }
                     } else {
                         connectionManager.msg(makeMoveCommand.username, new ServerMessage(ERROR, "Error: invalid move."));
@@ -106,8 +110,14 @@ public class WebSocketHandler {
         String username = userGameCommand.username;
         GameData gameData = gameService.getGame(userGameCommand.getGameID());
         if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
+            try {
+                connectionManager.msg(username, new ServerMessage(ERROR, "hmm"));
+            } catch (Exception e) {}
             return;
         }
+        try {
+            connectionManager.msg(username, new ServerMessage(ERROR, "hmm"));
+        } catch (Exception e) {}
         gameService.leaveGame(userGameCommand.getGameID(), username);
         try {
             connectionManager.remove(username, userGameCommand.getGameID());
@@ -121,7 +131,7 @@ public class WebSocketHandler {
         GameData gameData = gameService.getGame(userGameCommand.getGameID());
         if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
             try {
-                connectionManager.msg(username, new ServerMessage(ERROR, "Error: not a player."))
+                connectionManager.msg(username, new ServerMessage(ERROR, "Error: not a player."));
             } catch (Exception e) {}
             return;
         }
