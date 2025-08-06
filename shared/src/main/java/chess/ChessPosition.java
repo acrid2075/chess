@@ -13,7 +13,7 @@ public class ChessPosition {
 
     public ChessPosition(int row, int col) {
         if (((row < 1) || (row > 8)) || ((col < 1) || (col > 8))) {
-            throw new InvalidPositionException("Either row or col is out of bounds");
+            throw new InvalidPositionException("Either row or col is out of bounds" + row + col);
         }
         this.row = row;
         this.col = col;

@@ -76,7 +76,7 @@ public class GameUI {
                 }
                 if (code.equals("highlight")) {
                     String location = values[1];
-                    seeGame(game, username, new ChessPosition( ((int) location.charAt(1) - '0'), (int) location.charAt(0) - 'a' + 1));
+                    seeGame(game, username, new ChessPosition( ((int) location.charAt(1) - '0'), 8 - ((int) location.charAt(0) - 'a')));
                     continue;
                 }
                 if (code.equals("move")) {
@@ -127,7 +127,7 @@ public class GameUI {
             System.out.println();
             for (int i = 1; i <= 8; i++) {
                 System.out.print(" " + (i) + " ");
-                for (j = 8; j >= 1; j--) {
+                for (j = 1; j <= 8; j++) {
                     if (new ChessPosition(i, j).equals(highlightPosition)) {
                         printSquare(i, j, board, false, true);
                     } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
@@ -148,7 +148,7 @@ public class GameUI {
         System.out.println();
         for (int i = 8; i >= 1; i--) {
             System.out.print(" " + (i) + " ");
-            for (j = 1; j <= 8; j++) {
+            for (j = 8; j >= 1; j--) {
                 if (new ChessPosition(i, j).equals(highlightPosition)) {
                     printSquare(i, j, board, false, true);
                 } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
@@ -176,7 +176,7 @@ public class GameUI {
             }
             System.out.print(output);
         } else if (highlight) {
-            System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_GREEN : EscapeSequences.SET_BG_COLOR_DARK_GREEN));
+            System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_GREEN : EscapeSequences.SET_BG_COLOR_DARK_GREEN));
             ChessPiece piece = board.getPiece(new ChessPosition(i, j));
             String output = EscapeSequences.EMPTY;
             if (piece != null) {
@@ -184,7 +184,7 @@ public class GameUI {
             }
             System.out.print(output);
         } else {
-            System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
+            System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
             ChessPiece piece = board.getPiece(new ChessPosition(i, j));
             String output = EscapeSequences.EMPTY;
             if (piece != null) {

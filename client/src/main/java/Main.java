@@ -217,7 +217,7 @@ public class Main {
             System.out.println();
             for (int i = 1; i <= 8; i++) {
                 System.out.print(" " + (i) + " ");
-                for (j = 8; j >= 1; j--) {
+                for (j = 1; j <= 8; j++) {
                     printSquare(i, j, board);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
@@ -232,7 +232,7 @@ public class Main {
         System.out.println();
         for (int i = 8; i >= 1; i--) {
             System.out.print(" " + (i) + " ");
-            for (j = 1; j <= 8; j++) {
+            for (j = 8; j >= 1; j--) {
                 printSquare(i, j, board);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);
@@ -282,7 +282,7 @@ public class Main {
     }
 
     static private void printSquare(int i, int j, ChessBoard board) {
-        System.out.print(((((i + j) % 2) == 0) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
+        System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
         String output = EscapeSequences.EMPTY;
         if (piece != null) {

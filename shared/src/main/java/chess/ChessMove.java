@@ -18,8 +18,8 @@ public class ChessMove {
     }
 
     public ChessMove(String moveDetails) {
-        this.startPosition = new ChessPosition((int) moveDetails.charAt(1) - '0', "abcdefgh".indexOf(moveDetails.charAt(0)) + 1);
-        this.endPosition = new ChessPosition((int) moveDetails.charAt(3) - '0', "abcdefgh".indexOf(moveDetails.charAt(2)) + 1);
+        this.startPosition = new ChessPosition((int) moveDetails.charAt(1) - (int) '0', 9 - "abcdefgh".indexOf(moveDetails.charAt(0)) - 1);
+        this.endPosition = new ChessPosition((int) moveDetails.charAt(3) - (int) '0', 9 - "abcdefgh".indexOf(moveDetails.charAt(2)) - 1);
         if (moveDetails.length() == 4) {
             this.promotionPiece = null;
         } else {
@@ -56,10 +56,10 @@ public class ChessMove {
         ChessPosition start = this.getStartPosition();
         ChessPosition end = this.getEndPosition();
         if (this.getPromotionPiece() == null) {
-            return "" + "abcdefgh".charAt(start.getColumn() - 1) + start.getRow() + "abcdefgh".charAt(end.getColumn() - 1)
+            return "" + "abcdefgh".charAt(8 - start.getColumn()) + start.getRow() + "abcdefgh".charAt(8 - end.getColumn())
                     + end.getRow();
         }
-        return "" + "abcdefgh".charAt(start.getColumn() - 1) + start.getRow() + "abcdefgh".charAt(end.getColumn() - 1)
+        return "" + "abcdefgh".charAt(8 - start.getColumn()) + start.getRow() + "abcdefgh".charAt(8 - end.getColumn())
                 + end.getRow() + "kqbnrp".charAt(this.getPromotionPiece().ordinal());
     }
 
