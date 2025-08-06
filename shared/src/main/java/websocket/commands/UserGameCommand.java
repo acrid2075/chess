@@ -40,7 +40,7 @@ public class UserGameCommand {
 
     public String toJson() {
         Gson serializer = new Gson();
-        return serializer.toJson(Map.of("CommandType", this.getCommandType(), "authToken", this.getAuthToken(), "username", this.username, "role", role, "gameID", this.getGameID()));
+        return serializer.toJson(Map.of("commandType", this.getCommandType(), "authToken", this.getAuthToken(), "username", this.username, "role", role, "gameID", this.getGameID()));
     }
 
     public CommandType getCommandType() {

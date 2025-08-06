@@ -15,6 +15,7 @@ import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
+import websocket.commands.UserGameCommand.CommandType.*;
 
 import java.io.IOException;
 import java.time.Year;
@@ -30,12 +31,19 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
+        System.out.println(message);
+        System.out.println(userGameCommand);
+        System.out.println(userGameCommand.getCommandType());
+        System.out.println(userGameCommand.username);
+        System.out.println(userGameCommand.getGameID());
+        System.out.println(userGameCommand.role);
+        System.out.println(userGameCommand.toJson());
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> connect(userGameCommand, session);
-            case MAKE_MOVE -> makeMove(userGameCommand, session, gameService);
+            case MAKE_MOVE -> makeMove(userGameCommand, message, session, gameService);
             case LEAVE -> leave(userGameCommand, session, gameService);
+            case RESIGN -> resign(userGameCommand, session, gameService);
             default -> connect(userGameCommand, session);
-//            case RESIGN -> resign(userGameCommand, session);
 //            case LEAVE -> leave(userGameCommand, session);
         }
     }
@@ -45,9 +53,9 @@ public class WebSocketHandler {
         connectionManager.broadcast(userGameCommand.username, new ServerMessage(NOTIFICATION, userGameCommand.username + " connected to game as " + userGameCommand.role), userGameCommand.getGameID());
     }
 
-    private void makeMove(UserGameCommand userGameCommand, Session session, GameService gameService) {
+    private void makeMove(UserGameCommand userGameCommand, String message, Session session, GameService gameService) {
         SysGameDAO sysGameDAO = new SysGameDAO();
-        MakeMoveCommand makeMoveCommand = (MakeMoveCommand) userGameCommand;
+        MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
         GameData gameData = gameService.getGame(makeMoveCommand.getGameID());
         if (gameData.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE)) {
             if (gameData.whiteUsername().equals(makeMoveCommand.username)) {
