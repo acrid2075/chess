@@ -108,7 +108,7 @@ public class WebSocketHandler {
                             int gameID = gameData.gameID();
                             System.out.println("Sending game refresh");
                             connectionManager.broadcast("", serverMessage, gameID);
-                            connectionManager.msg(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()));
+                            connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()), gameID);
                             if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
                                 connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Checkmate. White wins"), gameData.gameID());
                                 gameService.gameOver(gameData.gameID());
@@ -144,7 +144,7 @@ public class WebSocketHandler {
                         if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(makeMoveCommand.move)) {
                             gameData = gameService.makeMove(makeMoveCommand.getGameID(), username, makeMoveCommand.move);
                             connectionManager.broadcast("", new ServerMessage(LOAD_GAME, gameData.toJson()), gameData.gameID());
-                            connectionManager.msg(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()));
+                            connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()), gameData.gameID());
                             if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
                                 connectionManager.broadcast("", new ServerMessage(NOTIFICATION, "Check"), gameData.gameID());
                             } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
