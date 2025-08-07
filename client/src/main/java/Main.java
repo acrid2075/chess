@@ -1,6 +1,5 @@
 import chess.*;
 import com.google.gson.Gson;
-import dataaccess.SysGameDAO;
 import model.GameData;
 import response.BlanketResponse;
 import ui.EscapeSequences;
