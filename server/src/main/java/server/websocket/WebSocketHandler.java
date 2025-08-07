@@ -85,7 +85,6 @@ public class WebSocketHandler {
         if (this.checkAuth(userGameCommand, session)) {
             AuthData authData = userService.getAuth(userGameCommand.getAuthToken());
             String username = authData.username();
-            SysGameDAO sysGameDAO = new SysGameDAO();
             MakeMoveCommand makeMoveCommand = new MakeMoveCommand(message);
             GameData gameData = gameService.getGame(makeMoveCommand.getGameID());
             if (gameData.game().getTeamTurn() == null) {
@@ -97,89 +96,15 @@ public class WebSocketHandler {
             }
             if (gameData.game().getTeamTurn().equals(ChessGame.TeamColor.WHITE)) {
                 if (username.equals(gameData.whiteUsername())) {
-
-                    try {
-                        if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(
-                                makeMoveCommand.move)) {
-
-                            gameData = gameService.makeMove(makeMoveCommand.getGameID(), username,
-                                    makeMoveCommand.move);
-                            ServerMessage serverMessage = new ServerMessage(LOAD_GAME, gameData.toJson());
-                            int gameID = gameData.gameID();
-                            //System.out.println("Sending game refresh");
-                            connectionManager.broadcast("", serverMessage, gameID);
-                            connectionManager.broadcast(username, new ServerMessage(NOTIFICATION,
-                                    makeMoveCommand.move.toString()), gameID);
-                            if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Checkmate. White wins"), gameData.gameID());
-                                gameService.gameOver(gameData.gameID());
-                            } else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Check"), gameData.gameID());
-                            } else if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Stalemate"), gameData.gameID());
-                                gameService.gameOver(gameData.gameID());
-                            }
-
-                        } else {
-                            connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
-                        }
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                        try {
-                            connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
-                        } catch (Exception f) {
-                            throw new RuntimeException(f.getMessage());
-                        }
-                    }
+                    makeMoveWhite(gameData, makeMoveCommand, username);
                 } else {
-                    try {
-                        connectionManager.msg(username, new ServerMessage(ERROR, "Error: not your turn"));
-                    } catch (Exception f) {
-                        throw new RuntimeException(f.getMessage());
-                    }
+                    notYourTurn(username);
                 }
             } else {
                 if (username.equals(gameData.blackUsername())) {
-                    try {
-                        if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(
-                                makeMoveCommand.move)) {
-                            gameData = gameService.makeMove(makeMoveCommand.getGameID(), username,
-                                    makeMoveCommand.move);
-                            connectionManager.broadcast("", new ServerMessage(LOAD_GAME,
-                                    gameData.toJson()), gameData.gameID());
-                            connectionManager.broadcast(username, new ServerMessage(NOTIFICATION,
-                                    makeMoveCommand.move.toString()), gameData.gameID());
-                            if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Check"), gameData.gameID());
-                            } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Checkmate. Black wins"), gameData.gameID());
-                                gameService.gameOver(gameData.gameID());
-                            } else if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
-                                connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
-                                        "Stalemate"), gameData.gameID());
-                                gameService.gameOver(gameData.gameID());
-                            }
-                        } else {
-                            connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
-                        }
-                    } catch (Exception e) {
-                        try {
-                            connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
-                        } catch (Exception f) {
-                            throw new RuntimeException(f.getMessage());
-                        }
-                    }
+                    makeMoveBlack(gameData, makeMoveCommand, username);
                 } else {
-                    try {
-                        connectionManager.msg(username, new ServerMessage(ERROR, "Error: not your turn"));
-                    } catch (Exception f) {
-                        throw new RuntimeException(f.getMessage());
-                    }
+                    notYourTurn(username);
                 }
             }
         }
@@ -231,6 +156,85 @@ public class WebSocketHandler {
                         userGameCommand.getGameID());
             } catch (Exception e) {
                 throw new RuntimeException("failed to send notification");
+            }
+        }
+    }
+
+
+    private void makeMoveWhite(GameData gameData, MakeMoveCommand makeMoveCommand, String username) {
+        try {
+            if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(
+                    makeMoveCommand.move)) {
+                gameData = gameService.makeMove(makeMoveCommand.getGameID(), username,
+                        makeMoveCommand.move);
+                ServerMessage serverMessage = new ServerMessage(LOAD_GAME, gameData.toJson());
+                int gameID = gameData.gameID();
+                //System.out.println("Sending game refresh");
+                connectionManager.broadcast("", serverMessage, gameID);
+                connectionManager.broadcast(username, new ServerMessage(NOTIFICATION,
+                        makeMoveCommand.move.toString()), gameID);
+                if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Checkmate. White wins"), gameData.gameID());
+                    gameService.gameOver(gameData.gameID());
+                } else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Check"), gameData.gameID());
+                } else if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Stalemate"), gameData.gameID());
+                    gameService.gameOver(gameData.gameID());
+                }
+
+            } else {
+                connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            try {
+                connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
+            } catch (Exception f) {throw new RuntimeException(f.getMessage()); }
+        }
+    }
+
+    private void notYourTurn(String username) {
+        try {
+            connectionManager.msg(username, new ServerMessage(ERROR, "Error: not your turn"));
+        } catch (Exception f) {
+            throw new RuntimeException(f.getMessage());
+        }
+    }
+
+    private void makeMoveBlack(GameData gameData, MakeMoveCommand makeMoveCommand, String username) {
+        try {
+            if (gameData.game().validMoves(makeMoveCommand.move.getStartPosition()).contains(
+                    makeMoveCommand.move)) {
+                gameData = gameService.makeMove(makeMoveCommand.getGameID(), username,
+                        makeMoveCommand.move);
+                connectionManager.broadcast("", new ServerMessage(LOAD_GAME,
+                        gameData.toJson()), gameData.gameID());
+                connectionManager.broadcast(username, new ServerMessage(NOTIFICATION,
+                        makeMoveCommand.move.toString()), gameData.gameID());
+                if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Check"), gameData.gameID());
+                } else if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Checkmate. Black wins"), gameData.gameID());
+                    gameService.gameOver(gameData.gameID());
+                } else if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+                    connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
+                            "Stalemate"), gameData.gameID());
+                    gameService.gameOver(gameData.gameID());
+                }
+            } else {
+                connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
+            }
+        } catch (Exception e) {
+            try {
+                connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
+            } catch (Exception f) {
+                throw new RuntimeException(f.getMessage());
             }
         }
     }

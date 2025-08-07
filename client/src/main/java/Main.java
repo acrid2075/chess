@@ -323,7 +323,8 @@ public class Main {
             System.out.println("No game with that number. Please try again."); System.out.println(); return;
         }
         try {
-            GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
+            GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new
+                    WebSocketFacade(URL, username, serverMessageHandler);
             webSocketFacade.connectGame(authToken, game.gameID());
             GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
             gui.run();
