@@ -146,7 +146,7 @@ public class Main {
                     } catch (Exception e) {
                         System.out.println("Game number was not a number."); System.out.println(); continue;
                     }
-                    observeFun(gameNum, gameDict, authToken, username, server); continue;
+                    observeFun(gameNum, gameDict, authToken, username, server, serverMessageHandler); continue;
                 }
                 if (values.length < 3) {
                     System.out.println("Missing keywords."); System.out.println(); continue;
@@ -318,7 +318,7 @@ public class Main {
     }
 
     static private void observeFun(int gameNum, HashMap<Integer, GameData> gameDict, String authToken, String username,
-                            ServerFacade server) {
+                            ServerFacade server, ServerMessageHandler serverMessageHandler) {
         if (!gameDict.containsKey(gameNum)) {
             System.out.println("No game with that number. Please try again."); System.out.println(); return;
         }
