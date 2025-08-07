@@ -82,7 +82,11 @@ public class GameUI {
                 if (code.equals("highlight")) {
                     String location = values[1];
                     game = getGame(server);
-                    seeGame(game, username, new ChessPosition( ((int) location.charAt(1) - '0'), 8 - ((int) location.charAt(0) - 'a')));
+                    try {
+                        seeGame(game, username, new ChessPosition(((int) location.charAt(1) - '0'), ((int) location.charAt(0) - 'a') + 1));
+                    } catch (Exception e) {
+                        System.out.println("No valid moves.");
+                    }
                     continue;
                 }
                 if (code.equals("move")) {
@@ -133,7 +137,7 @@ public class GameUI {
             System.out.println();
             for (int i = 1; i <= 8; i++) {
                 System.out.print(" " + (i) + " ");
-                for (j = 1; j <= 8; j++) {
+                for (j = 8; j >= 1; j--) {
                     printSquareHypo(i, j, highlightPosition, board, validMoveList);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
@@ -148,7 +152,7 @@ public class GameUI {
         System.out.println();
         for (int i = 8; i >= 1; i--) {
             System.out.print(" " + (i) + " ");
-            for (j = 8; j >= 1; j--) {
+            for (j = 1; j <= 8; j++) {
                 printSquareHypo(i, j, highlightPosition, board, validMoveList);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);

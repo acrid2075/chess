@@ -172,7 +172,7 @@ public class WebSocketHandler {
                 //System.out.println("Sending game refresh");
                 connectionManager.broadcast("", serverMessage, gameID);
                 connectionManager.broadcast(username, new ServerMessage(NOTIFICATION,
-                        makeMoveCommand.move.toString()), gameID);
+                        username + " made move " + makeMoveCommand.move.toString()), gameID);
                 if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
                     connectionManager.broadcast("", new ServerMessage(NOTIFICATION,
                             "Checkmate. White wins"), gameData.gameID());
