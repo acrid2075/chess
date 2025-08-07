@@ -1,17 +1,10 @@
 package dataaccess;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import model.GameData;
-import model.UserData;
 
-import javax.management.RuntimeErrorException;
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 

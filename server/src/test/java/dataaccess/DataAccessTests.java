@@ -1,8 +1,5 @@
 package dataaccess;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -10,7 +7,6 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
 import requests.*;
 import results.LoginResult;
 import service.ClearService;

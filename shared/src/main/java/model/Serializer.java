@@ -5,7 +5,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
-import dataaccess.ChessGameJson;
+import chess.ChessGameJson;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

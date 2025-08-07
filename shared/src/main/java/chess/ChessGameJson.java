@@ -1,4 +1,4 @@
-package dataaccess;
+package chess;
 
 public record ChessGameJson (String turn, String a1, String a2, String a3, String a4, String a5, String a6, String a7,
                              String a8, String b1, String b2, String b3, String b4, String b5, String b6, String b7,
