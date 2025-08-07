@@ -208,7 +208,7 @@ public class WebSocketHandler {
             }
             gameService.gameOver(gameData.gameID());
             try {
-                connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, username + ", " + (username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK") + ", has resigned."), userGameCommand.getGameID());
+                connectionManager.broadcast("", new ServerMessage(NOTIFICATION, username + ", " + (username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK") + ", has resigned."), userGameCommand.getGameID());
             } catch (Exception e) {
                 throw new RuntimeException("failed to notification");
             }
