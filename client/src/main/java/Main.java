@@ -94,9 +94,11 @@ public class Main {
         ServerMessageHandler serverMessageHandler = serverMessage -> {
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                 System.out.println("An error has arisen. " + serverMessage.errorMessage);
+                System.out.printf("[GAME] >>> ");
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
                 System.out.println(serverMessage.message);
+                System.out.printf("[GAME] >>> ");
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                 GameData gameData = new GameData(serverMessage.game);
