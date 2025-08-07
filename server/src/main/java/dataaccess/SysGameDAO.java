@@ -29,8 +29,6 @@ public class SysGameDAO implements GameDAO {
             throw new RuntimeException(e);
         }
         try (var conn = DatabaseManager.getConnection()) {
-            
-
             var createGamesTable = """
             CREATE TABLE IF NOT EXISTS games (
                 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

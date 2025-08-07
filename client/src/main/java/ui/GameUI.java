@@ -65,7 +65,13 @@ public class GameUI {
                     continue;
                 }
                 if (code.equals("resign")) {
-                    webSocketFacade.resignGame(authToken, gameID);
+                    System.out.printf("Are you sure? Y/N ");
+                    scanner = new Scanner(System.in);
+                    line = scanner.nextLine();
+                    values = line.split(" ");
+                    if (values[0].equals("Y")) {
+                        webSocketFacade.resignGame(authToken, gameID);
+                    }
                     continue;
                 }
                 if (values.length < 2) {

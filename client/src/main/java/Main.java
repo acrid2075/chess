@@ -89,7 +89,6 @@ public class Main {
     }
 
     static boolean loggedIn(ServerFacade server, String username, String authToken) { //returns true if quitting
-        // application
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
         ServerMessageHandler serverMessageHandler = serverMessage -> {
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
@@ -160,8 +159,7 @@ public class Main {
                     try {
                         gameNum = Integer.parseInt(values[1]);
                     } catch (Exception e) {
-                        System.out.println("Game number was not a number.");
-                        System.out.println(); continue;
+                        System.out.println("Game number was not a number."); System.out.println(); continue;
                     }
                     if (!gameDict.containsKey(gameNum)) {
                         System.out.println("No game with that number. Please try again.");
