@@ -23,8 +23,12 @@ public class SysGameDAO implements GameDAO {
 
 
     private static void configureDatabase() throws SQLException {
-        try (var conn = DatabaseManager.getConnection()) {
+        try {
             DatabaseManager.createDatabase();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try (var conn = DatabaseManager.getConnection()) {
             
 
             var createGamesTable = """
