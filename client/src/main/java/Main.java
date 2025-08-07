@@ -89,7 +89,6 @@ public class Main {
     static boolean loggedIn(ServerFacade server, String username, String authToken) { //returns true if quitting
         // application
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
-
         ServerMessageHandler serverMessageHandler = serverMessage -> {
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                 System.out.println("An error has arisen. " + serverMessage.errorMessage);
@@ -99,26 +98,22 @@ public class Main {
             }
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                 GameData gameData = new GameData(serverMessage.game);
-                observe(gameData, username);
-                System.out.printf("[GAME] >>> ");
+                observe(gameData, username); System.out.printf("[GAME] >>> ");
             }
         };
-
         while (true) {
             try {
                 System.out.printf("[LOGGED_IN] >>> "); Scanner scanner = new Scanner(System.in);
                 String line = scanner.nextLine(); var values = line.split(" ");
                 if (values.length < 1) {
-                    System.out.println("Please input a keyword."); System.out.println();
-                    continue;
+                    System.out.println("Please input a keyword."); System.out.println(); continue;
                 }
                 String code = values[0];
                 if (code.equals("help")) {
                     System.out.println("create <NAME> - to create a game"); System.out.println("list - games");
                     System.out.println("join <ID> [WHITE|BLACK] - a game"); System.out.println("observe <ID> - a game");
                     System.out.println("logout - logs out the user"); System.out.println("quit - to quit application");
-                    System.out.println("help - with possible commands"); System.out.println();
-                    continue;
+                    System.out.println("help - with possible commands"); System.out.println(); continue;
                 }
                 if (code.equals("logout")) {
                     System.out.println("Logging out."); server.logout(); System.out.println(); return false;
@@ -151,17 +146,7 @@ public class Main {
                     } catch (Exception e) {
                         System.out.println("Game number was not a number."); System.out.println(); continue;
                     }
-                    if (!gameDict.containsKey(gameNum)) {
-                        System.out.println("No game with that number. Please try again."); System.out.println(); continue;
-                    }
-                    try {
-                        GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
-                        webSocketFacade.connectGame(authToken, game.gameID());
-                        GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
-                        gui.run(); continue;
-                    } catch (Exception e) {
-                        System.out.println("Unsuccessful observing the game. "); System.out.println(); continue;
-                    }
+                    observeFun(gameNum, gameDict, authToken, username, server); continue;
                 }
                 if (values.length < 3) {
                     System.out.println("Missing keywords."); System.out.println(); continue;
@@ -185,13 +170,10 @@ public class Main {
                     try {
                         GameData game = gameDict.get(gameNum); server.joinGame(values[2], game.gameID());
                     } catch (Exception e) {
-                        System.out.println("That color has already been claimed."); System.out.println();
-                        continue;
+                        System.out.println("That color has already been claimed."); System.out.println(); continue;
                     }
                     System.out.println("Successful in joining game " + values[1] + " as " + values[2] + ".");
-                    System.out.println();
-                    gameDict = listGames(server);
-                    GameData game = gameDict.get(gameNum);
+                    System.out.println(); gameDict = listGames(server); GameData game = gameDict.get(gameNum);
                     WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
                     webSocketFacade.connectGame(authToken, game.gameID());
                     GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
@@ -202,7 +184,6 @@ public class Main {
                 System.out.println(); return true;
             }
         }
-
     }
 
     static void observe(GameData gameData, String username) {
@@ -334,5 +315,20 @@ public class Main {
             return true;
         }
         return false;
+    }
+
+    static private void observeFun(int gameNum, HashMap<Integer, GameData> gameDict, String authToken, String username,
+                            ServerFacade server) {
+        if (!gameDict.containsKey(gameNum)) {
+            System.out.println("No game with that number. Please try again."); System.out.println(); return;
+        }
+        try {
+            GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
+            webSocketFacade.connectGame(authToken, game.gameID());
+            GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
+            gui.run();
+        } catch (Exception e) {
+            System.out.println("Unsuccessful observing the game. "); System.out.println();
+        }
     }
 }

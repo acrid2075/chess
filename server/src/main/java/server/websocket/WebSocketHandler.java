@@ -36,16 +36,12 @@ public class WebSocketHandler {
         if (!checkAuth(userGameCommand, session)) {
             return;
         }
-//        System.out.println(message); System.out.println(userGameCommand);
-//        System.out.println(userGameCommand.getCommandType()); System.out.println(userGameCommand.getGameID());
-//        System.out.println(userGameCommand.toJson());
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> connect(userGameCommand, session);
             case MAKE_MOVE -> makeMove(userGameCommand, message, session, gameService);
             case LEAVE -> leave(userGameCommand, session, gameService);
             case RESIGN -> resign(userGameCommand, session, gameService);
             default -> connect(userGameCommand, session);
-//            case LEAVE -> leave(userGameCommand, session);
         }
     }
 
