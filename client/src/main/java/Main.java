@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import static ui.GameUI.getPiece;
+
 public class Main {
     public static final String URL = "http://localhost:8080";
 
@@ -242,23 +244,6 @@ public class Main {
         System.out.println("No games currently active."); System.out.println(); return null;
     }
 
-    static private String getPiece(int hashCode){
-        return switch (hashCode) {
-            case 0 -> EscapeSequences.BLACK_KING;
-            case 1 -> EscapeSequences.BLACK_QUEEN;
-            case 2 -> EscapeSequences.BLACK_BISHOP;
-            case 3 -> EscapeSequences.BLACK_KNIGHT;
-            case 4 -> EscapeSequences.BLACK_ROOK;
-            case 5 -> EscapeSequences.BLACK_PAWN;
-            case 10 -> EscapeSequences.WHITE_KING;
-            case 11 -> EscapeSequences.WHITE_QUEEN;
-            case 12 -> EscapeSequences.WHITE_BISHOP;
-            case 13 -> EscapeSequences.WHITE_KNIGHT;
-            case 14 -> EscapeSequences.WHITE_ROOK;
-            case 15 -> EscapeSequences.WHITE_PAWN;
-            default -> EscapeSequences.EMPTY;
-        };
-    }
 
     static private void printSquare(int i, int j, ChessBoard board) {
         System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY :

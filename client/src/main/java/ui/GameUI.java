@@ -117,7 +117,7 @@ public class GameUI {
         ChessBoard board = game.getBoard();
         Collection<ChessMove> validMoveList;
         if (highlightPosition == null) {
-            validMoveList = new ArrayList<ChessMove>();
+            validMoveList = new ArrayList<>();
         } else {
             validMoveList = game.validMoves(highlightPosition);
         }
@@ -128,13 +128,7 @@ public class GameUI {
             for (int i = 1; i <= 8; i++) {
                 System.out.print(" " + (i) + " ");
                 for (j = 1; j <= 8; j++) {
-                    if (new ChessPosition(i, j).equals(highlightPosition)) {
-                        printSquare(i, j, board, false, true);
-                    } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
-                        printSquare(i, j, board, true, false);
-                    } else {
-                        printSquare(i, j, board, false, false);
-                    }
+                    printSquareHypo(i, j, highlightPosition, board, validMoveList);
                 }
                 System.out.print(EscapeSequences.RESET_BG_COLOR);
                 System.out.print(" " + (i) + " ");
@@ -149,13 +143,7 @@ public class GameUI {
         for (int i = 8; i >= 1; i--) {
             System.out.print(" " + (i) + " ");
             for (j = 8; j >= 1; j--) {
-                if (new ChessPosition(i, j).equals(highlightPosition)) {
-                    printSquare(i, j, board, false, true);
-                } else if (validMoveList.contains(new ChessMove(highlightPosition, new ChessPosition(i, j), null))) {
-                    printSquare(i, j, board, true, false);
-                } else {
-                    printSquare(i, j, board, false, false);
-                }
+                printSquareHypo(i, j, highlightPosition, board, validMoveList);
             }
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print(" " + (i) + " ");
@@ -194,7 +182,7 @@ public class GameUI {
         }
     }
 
-    static private String getPiece(int hashCode){
+    public static String getPiece(int hashCode){
         return switch (hashCode) {
             case 0 -> EscapeSequences.BLACK_KING;
             case 1 -> EscapeSequences.BLACK_QUEEN;
@@ -210,5 +198,17 @@ public class GameUI {
             case 15 -> EscapeSequences.WHITE_PAWN;
             default -> EscapeSequences.EMPTY;
         };
+    }
+
+    public static void printSquareHypo(int i, int j, ChessPosition highlightPosition, ChessBoard board,
+                                       Collection<ChessMove> validMoveList) {
+        if (new ChessPosition(i, j).equals(highlightPosition)) {
+            printSquare(i, j, board, false, true);
+        } else if (validMoveList.contains(new ChessMove(highlightPosition,
+                new ChessPosition(i, j), null))) {
+            printSquare(i, j, board, true, false);
+        } else {
+            printSquare(i, j, board, false, false);
+        }
     }
 }

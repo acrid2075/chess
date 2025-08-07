@@ -16,7 +16,6 @@ public class Serializer {
         var serializer = new Gson();
         ChessGameJson details = serializer.fromJson(jsoncontent, ChessGameJson.class);
         ChessBoard board = new ChessBoard();
-
         Map<String, ChessPiece> map = Map.ofEntries(
                 Map.entry("k", new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING)),
                 Map.entry("q", new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN)),
@@ -31,7 +30,6 @@ public class Serializer {
                 Map.entry("R", new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)),
                 Map.entry("P", new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN))
         );
-
         for (char c = 'a'; c <= 'h'; c++) {
             for (char d = '1'; d <= '8'; d++) {
                 int col = (int) c - (int) 'a' + 1;
@@ -52,10 +50,8 @@ public class Serializer {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-
             }
         }
-
         ChessGame output = new ChessGame();
         output.setBoard(board);
         if (details.turn() == null) {
@@ -70,7 +66,6 @@ public class Serializer {
     public static String togglejsonon (ChessGame game) {
         var serializer = new Gson();
         ChessBoard board = game.getBoard();
-
         Map<ChessPiece, String> reverseMap = Map.ofEntries(
                 Map.entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING), "k"),
                 Map.entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN), "q"),
@@ -103,7 +98,6 @@ public class Serializer {
                     continue;
                 }
                 args.put(posCode, reverseMap.get(piece));
-
             }
         }
         return serializer.toJson(args);

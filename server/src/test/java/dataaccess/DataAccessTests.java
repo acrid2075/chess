@@ -14,6 +14,9 @@ import service.GameService;
 import service.UserService;
 import java.util.Objects;
 
+import static model.Serializer.togglejsonoff;
+import static model.Serializer.togglejsonon;
+
 public class DataAccessTests {
     public DataAccessTests() {
     }
@@ -23,9 +26,8 @@ public class DataAccessTests {
         ChessGame game = new ChessGame(); ChessBoard board = game.getBoard();
         ChessPiece piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         board.addPiece(new ChessPosition(4, 4), piece); game.setBoard(board);
-        SysGameDAO serializer = new SysGameDAO();
-        String jsonval = serializer.togglejsonon(game);
-        ChessGame out = serializer.togglejsonoff(jsonval);
+        String jsonval = togglejsonon(game);
+        ChessGame out = togglejsonoff(jsonval);
         var newserializer = new Gson();
         ChessGameJson chessGameJson = newserializer.fromJson(jsonval, ChessGameJson.class);
         Class<?> f = chessGameJson.getClass();
@@ -35,7 +37,7 @@ public class DataAccessTests {
         } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(4, 4))+ game.getBoard().getPiece(new
-                ChessPosition(4, 4)).getPieceType() + serializer.togglejsonon(game));
+                ChessPosition(4, 4)).getPieceType() + togglejsonon(game));
     }
     @Test
     @DisplayName("Assert invertible serializer")
@@ -45,9 +47,8 @@ public class DataAccessTests {
         ChessPiece piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         board.addPiece(new ChessPosition(4, 5), piece);
         game.setBoard(board);
-        SysGameDAO serializer = new SysGameDAO();
-        String jsonval = serializer.togglejsonon(game);
-        ChessGame out = serializer.togglejsonoff(jsonval);
+        String jsonval = togglejsonon(game);
+        ChessGame out = togglejsonoff(jsonval);
         var newserializer = new Gson();
         ChessGameJson chessGameJson = newserializer.fromJson(jsonval, ChessGameJson.class);
         Class<?> f = chessGameJson.getClass();
@@ -57,7 +58,7 @@ public class DataAccessTests {
         } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertNotEquals(out, game2, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(4, 5))+ game.getBoard().getPiece(new
-                ChessPosition(4, 5)).getPieceType() + serializer.togglejsonon(game));
+                ChessPosition(4, 5)).getPieceType() + togglejsonon(game));
     }
     @Test
     @DisplayName("Assert invertible serializer")
@@ -67,8 +68,8 @@ public class DataAccessTests {
         board.addPiece(new ChessPosition(5, 5), piece);
         game.setBoard(board);
         SysGameDAO serializer = new SysGameDAO();
-        String jsonval = serializer.togglejsonon(game);
-        ChessGame out = serializer.togglejsonoff(jsonval);
+        String jsonval = togglejsonon(game);
+        ChessGame out = togglejsonoff(jsonval);
         var newserializer = new Gson();
         ChessGameJson chessGameJson = newserializer.fromJson(jsonval, ChessGameJson.class);
         Class<?> f = chessGameJson.getClass();
@@ -78,7 +79,7 @@ public class DataAccessTests {
         } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertEquals(out, game, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(5, 5))+ game.getBoard().getPiece(new
-                ChessPosition(5, 5)).getPieceType() + serializer.togglejsonon(game));
+                ChessPosition(5, 5)).getPieceType() + togglejsonon(game));
     }
     @Test
     @DisplayName("Assert invertible serializer")
@@ -89,9 +90,8 @@ public class DataAccessTests {
         ChessBoard board = game.getBoard();
         board.addPiece(new ChessPosition(5, 4), piece);
         game.setBoard(board);
-        SysGameDAO serializer = new SysGameDAO();
-        String jsonval = serializer.togglejsonon(game);
-        ChessGame out = serializer.togglejsonoff(jsonval);
+        String jsonval = togglejsonon(game);
+        ChessGame out = togglejsonoff(jsonval);
         var newserializer = new Gson();
         ChessGameJson chessGameJson = newserializer.fromJson(jsonval, ChessGameJson.class);
         Class<?> f = chessGameJson.getClass();
@@ -101,7 +101,7 @@ public class DataAccessTests {
         } catch (Exception e) { pieceCode = "not" + e.toString(); }
         Assertions.assertNotEquals(out, game2, " Failed." + pieceCode + out.getBoard().getPiece(
                 new ChessPosition(5, 4))+ game.getBoard().getPiece(new
-                ChessPosition(5, 4)).getPieceType() + serializer.togglejsonon(game));
+                ChessPosition(5, 4)).getPieceType() + togglejsonon(game));
 
     }
     private void clearDAO() {
