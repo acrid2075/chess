@@ -57,7 +57,7 @@ public class GameUI {
                     continue;
                 }
                 if (code.equals("leave")) {
-                    webSocketFacade.leaveGame(authToken, gameID, role);
+                    webSocketFacade.leaveGame(authToken, gameID);
                     break;
                 }
                 if (code.equals("redraw")) {
@@ -65,7 +65,7 @@ public class GameUI {
                     continue;
                 }
                 if (code.equals("resign")) {
-                    webSocketFacade.resignGame(authToken, gameID, role);
+                    webSocketFacade.resignGame(authToken, gameID);
                     continue;
                 }
                 if (values.length < 2) {
@@ -82,7 +82,7 @@ public class GameUI {
                 if (code.equals("move")) {
                     String location = values[1];
                     ChessMove move = new ChessMove(location);
-                    webSocketFacade.makeMove(authToken, gameID, move, role);
+                    webSocketFacade.makeMove(authToken, gameID, move);
                     continue;
                 }
             } catch (Exception e) {
