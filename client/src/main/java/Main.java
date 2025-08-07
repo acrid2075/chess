@@ -31,7 +31,7 @@ public class Main {
                     line = scanner.nextLine();
                 } catch (Exception e) {
                     System.out.println("Error in reading input.");
-                    System.out.println("");
+                    System.out.println();
                     continue;
                 }
                 var values = line.split(" ");
@@ -92,7 +92,6 @@ public class Main {
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
 
         ServerMessageHandler serverMessageHandler = serverMessage -> {
-            System.out.println("Getting message: ");
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                 System.out.println("An error has arisen. " + serverMessage.errorMessage);
             }
@@ -102,6 +101,7 @@ public class Main {
             if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                 GameData gameData = new GameData(serverMessage.game);
                 observe(gameData, username);
+                System.out.printf("[GAME] >>> ");
             }
         };
 
@@ -193,8 +193,6 @@ public class Main {
                     System.out.println();
                     gameDict = listGames(server);
                     GameData game = gameDict.get(gameNum);
-                    System.out.println(game);
-//                    observe(game, username);
                     WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
                     webSocketFacade.connectGame(authToken, game.gameID());
                     GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
@@ -212,6 +210,7 @@ public class Main {
         ChessGame game = gameData.game();
         ChessBoard board = game.getBoard();
         int j;
+        System.out.println();
         if (username.equals(gameData.blackUsername())) {
             System.out.print("    H\u2003 G\u2003 F\u2003 E\u2003 D\u2003 C\u2003 B\u2003 A\u2003");
             System.out.println();

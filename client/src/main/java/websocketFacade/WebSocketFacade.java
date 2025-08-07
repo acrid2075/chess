@@ -32,7 +32,6 @@ public class WebSocketFacade extends Endpoint {
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 public void onMessage(String message) {
-                    System.out.println("Message received.");
                     ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     serverMessageHandler.notify(notification);
                 }
@@ -45,7 +44,6 @@ public class WebSocketFacade extends Endpoint {
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-        System.out.println("Websocket connected.");
     }
 
     public void connectGame(String authToken, int gameID) throws ResponseException {

@@ -76,7 +76,6 @@ public class SysGameDAO implements GameDAO {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("game");
-                        System.out.println(game);
                         return new GameData(id, whiteUsername, blackUsername, gameName, togglejsonoff(game));
                     }
                     return null;

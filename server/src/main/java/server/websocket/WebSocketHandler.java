@@ -35,11 +35,9 @@ public class WebSocketHandler {
         if (!checkAuth(userGameCommand, session)) {
             return;
         }
-        System.out.println(message);
-        System.out.println(userGameCommand);
-        System.out.println(userGameCommand.getCommandType());
-        System.out.println(userGameCommand.getGameID());
-        System.out.println(userGameCommand.toJson());
+//        System.out.println(message); System.out.println(userGameCommand);
+//        System.out.println(userGameCommand.getCommandType()); System.out.println(userGameCommand.getGameID());
+//        System.out.println(userGameCommand.toJson());
         switch (userGameCommand.getCommandType()) {
             case CONNECT -> connect(userGameCommand, session);
             case MAKE_MOVE -> makeMove(userGameCommand, message, session, gameService);
@@ -106,7 +104,7 @@ public class WebSocketHandler {
                             gameData = gameService.makeMove(makeMoveCommand.getGameID(), username, makeMoveCommand.move);
                             ServerMessage serverMessage = new ServerMessage(LOAD_GAME, gameData.toJson());
                             int gameID = gameData.gameID();
-                            System.out.println("Sending game refresh");
+                            //System.out.println("Sending game refresh");
                             connectionManager.broadcast("", serverMessage, gameID);
                             connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, makeMoveCommand.move.toString()), gameID);
                             if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
@@ -123,7 +121,6 @@ public class WebSocketHandler {
                             connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));
                         }
                     } catch (Exception e) {
-                        System.out.println(e.toString());
                         System.out.println(e.getMessage());
                         try {
                             connectionManager.msg(username, new ServerMessage(ERROR, "Error: invalid move."));

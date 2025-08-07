@@ -61,6 +61,7 @@ public class GameUI {
                     break;
                 }
                 if (code.equals("redraw")) {
+                    game = getGame(server);
                     seeGame(game, username, null);
                     continue;
                 }
@@ -70,12 +71,12 @@ public class GameUI {
                 }
                 if (values.length < 2) {
                     System.out.println("Missing keywords.");
-                    System.out.println(values[0]);
                     System.out.println();
                     continue;
                 }
                 if (code.equals("highlight")) {
                     String location = values[1];
+                    game = getGame(server);
                     seeGame(game, username, new ChessPosition( ((int) location.charAt(1) - '0'), 8 - ((int) location.charAt(0) - 'a')));
                     continue;
                 }

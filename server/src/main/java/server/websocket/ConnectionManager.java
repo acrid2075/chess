@@ -13,7 +13,7 @@ public class ConnectionManager {
     public ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
     public ConcurrentHashMap<Integer, ArrayList<Connection>> gameCrews = new ConcurrentHashMap<>();
     public void add(String username, String authToken, Session session, int gameID) {
-        System.out.println("Adding " + username + " to " + gameID);
+        //System.out.println("Adding " + username + " to " + gameID);
         Connection connection = new Connection(username, authToken, session, gameID);
         connections.put(username, connection);
         if (gameCrews.get(gameID) == null) {
@@ -37,8 +37,8 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         Gson serializer = new Gson();
         String message = serializer.toJson(serverMessage);
-        System.out.println("Broadcasting message: " + message);
-        System.out.println("To game crew: " + gameID + " -> " + gameCrews.get(gameID).size() + " players");
+        //System.out.println("Broadcasting message: " + message);
+        //System.out.println("To game crew: " + gameID + " -> " + gameCrews.get(gameID).size() + " players");
         for (var c : gameCrews.get(gameID)) {
             if (c.session.isOpen() && connections.containsValue(c)) {
                 if (!c.username.equals(exceptThis)) {

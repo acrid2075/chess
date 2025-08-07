@@ -393,6 +393,5 @@ public class Server {
             return internalError(res, serializer, e);
         }
     }
-
 }
 
