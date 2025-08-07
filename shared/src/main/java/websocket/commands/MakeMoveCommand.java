@@ -28,7 +28,8 @@ public class MakeMoveCommand extends UserGameCommand {
             start = makeMoveJson.move().startPosition();
             end = makeMoveJson.move().endPosition();
         }
-        this.move = new ChessMove(new ChessPosition(start.row(), start.col()), new ChessPosition(end.row(), end.col()), makeMoveJson.move().piece());
+        this.move = new ChessMove(new ChessPosition(start.row(), start.col()), new ChessPosition(end.row(), end.col()),
+                makeMoveJson.move().piece());
     }
 
     @Override
@@ -36,8 +37,12 @@ public class MakeMoveCommand extends UserGameCommand {
         Gson serializer = new Gson();
         ChessPosition start = this.move.getStartPosition();
         ChessPosition end = this.move.getEndPosition();
-        return serializer.toJson(Map.of("commandType", this.getCommandType(), "authToken", this.getAuthToken(), "gameID", this.getGameID(), "move", new MoveJson(new PositionJson(start.getRow(), start.getColumn()), new PositionJson(end.getRow(), end.getColumn()), null, null, this.move.getPromotionPiece())));
-        //return serializer.toJson(Map.of("commandType", this.getCommandType(), "authToken", this.getAuthToken(), "gameID", this.getGameID(), "move", this.move.toString()));
+        return serializer.toJson(Map.of("commandType", this.getCommandType(), "authToken", this.getAuthToken(),
+                "gameID", this.getGameID(), "move", new MoveJson(new PositionJson(start.getRow(),
+                        start.getColumn()), new PositionJson(end.getRow(), end.getColumn()), null,
+                        null, this.move.getPromotionPiece())));
+        //return serializer.toJson(Map.of("commandType", this.getCommandType(), "authToken", this.getAuthToken(),
+        // "gameID", this.getGameID(), "move", this.move.toString()));
     }
 
     @Override

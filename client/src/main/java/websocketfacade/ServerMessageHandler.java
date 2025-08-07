@@ -1,4 +1,4 @@
-package websocketFacade;
+package websocketfacade;
 
 import websocket.messages.ServerMessage;
 

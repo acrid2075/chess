@@ -60,7 +60,8 @@ public class SysGameDAO implements GameDAO {
     @Override
     public GameData getGame(int gameID) {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, " +
+                    "gameName, game FROM games WHERE id=?")) {
                 preparedStatement.setInt(1, gameID);
                 try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
@@ -111,7 +112,8 @@ public class SysGameDAO implements GameDAO {
     public Collection<GameData> listGames() {
         var games = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, " +
+                    "gameName, game FROM games")) {
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
                         var id = rs.getInt("id");
@@ -138,7 +140,8 @@ public class SysGameDAO implements GameDAO {
         String gameName = "";
         String game = "";
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, " +
+                    "gameName, game FROM games")) {
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
                         id = rs.getInt("id");
@@ -151,7 +154,8 @@ public class SysGameDAO implements GameDAO {
                 }
             }
             if (Objects.equals(playerColor, "BLACK")) {
-                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?"))
+                {
                     preparedStatement.setString(1, username);
                     preparedStatement.setInt(2, gameID);
                     preparedStatement.executeUpdate();
@@ -189,7 +193,8 @@ public class SysGameDAO implements GameDAO {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
-            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, gameName, game FROM games WHERE id=?")) {
+            try (var preparedStatement = conn.prepareStatement("SELECT id, whiteUsername, blackUsername, " +
+                    "gameName, game FROM games WHERE id=?")) {
                 preparedStatement.setString(1, "" + gameID);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
@@ -268,7 +273,8 @@ public class SysGameDAO implements GameDAO {
         }
         try (var conn = DatabaseManager.getConnection()) {
             if (playerColor.equals("WHITE")) {
-                try (var preparedStatement = conn.prepareStatement("UPDATE games SET whiteUsername=? WHERE id=?")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET whiteUsername=? WHERE id=?"))
+                {
                     preparedStatement.setString(1, null);
                     preparedStatement.setInt(2, gameID);
                     preparedStatement.executeUpdate();
@@ -276,7 +282,8 @@ public class SysGameDAO implements GameDAO {
                     throw new RuntimeException(ex);
                 }
             } else {
-                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE games SET blackUsername=? WHERE id=?"))
+                {
                     preparedStatement.setString(1, null);
                     preparedStatement.setInt(2, gameID);
                     preparedStatement.executeUpdate();
@@ -339,7 +346,8 @@ public class SysGameDAO implements GameDAO {
         if (details.turn() == null) {
             output.setTeamTurn(null);
         } else {
-            output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
+            output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE :
+                    ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
         }
         return output;
     }
@@ -366,7 +374,8 @@ public class SysGameDAO implements GameDAO {
         if (game.getTeamTurn() == null) {
             args = new HashMap<>(Map.of());
         } else {
-            args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
+            args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" :
+                    (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
         }
         for (char c = 'a'; c <= 'h'; c++) {
             for (char d = '1'; d <= '8'; d++) {

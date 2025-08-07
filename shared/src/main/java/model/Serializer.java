@@ -61,7 +61,8 @@ public class Serializer {
         if (details.turn() == null) {
             output.setTeamTurn(null);
         } else {
-            output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
+            output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE :
+                    ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
         }
         return output;
     }
@@ -88,7 +89,8 @@ public class Serializer {
         if (game.getTeamTurn() == null) {
             args = new HashMap<>(Map.of());
         } else {
-            args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
+            args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" :
+                    (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
         }
         for (char c = 'a'; c <= 'h'; c++) {
             for (char d = '1'; d <= '8'; d++) {

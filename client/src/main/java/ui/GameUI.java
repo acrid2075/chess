@@ -3,11 +3,10 @@ package ui;
 import chess.*;
 import model.GameData;
 import response.BlanketResponse;
-import websocketFacade.WebSocketFacade;
+import websocketfacade.WebSocketFacade;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class GameUI {

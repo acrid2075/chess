@@ -1,25 +1,24 @@
 import chess.*;
-import com.google.gson.Gson;
 import model.GameData;
 import response.BlanketResponse;
 import ui.EscapeSequences;
 import ui.GameUI;
 import ui.ServerFacade;
 import websocket.messages.ServerMessage;
-import websocketFacade.ServerMessageHandler;
-import websocketFacade.WebSocketFacade;
+import websocketfacade.ServerMessageHandler;
+import websocketfacade.WebSocketFacade;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
-    public static final String url = "http://localhost:8080";
+    public static final String URL = "http://localhost:8080";
 
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
-        ServerFacade server = new ServerFacade(url);
+        ServerFacade server = new ServerFacade(URL);
 
         while (true) {
             try {
@@ -87,7 +86,8 @@ public class Main {
         }
     }
 
-    static boolean loggedIn(ServerFacade server, String username, String authToken) { //returns true if quitting application
+    static boolean loggedIn(ServerFacade server, String username, String authToken) { //returns true if quitting
+        // application
         Collection<GameData> games; HashMap<Integer, GameData> gameDict = new HashMap<>();
 
         ServerMessageHandler serverMessageHandler = serverMessage -> {
@@ -155,7 +155,7 @@ public class Main {
                         System.out.println("No game with that number. Please try again."); System.out.println(); continue;
                     }
                     try {
-                        GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
+                        GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
                         webSocketFacade.connectGame(authToken, game.gameID());
                         GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
                         gui.run(); continue;
@@ -192,7 +192,7 @@ public class Main {
                     System.out.println();
                     gameDict = listGames(server);
                     GameData game = gameDict.get(gameNum);
-                    WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
+                    WebSocketFacade webSocketFacade = new WebSocketFacade(URL, username, serverMessageHandler);
                     webSocketFacade.connectGame(authToken, game.gameID());
                     GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
                     gui.run();
@@ -280,7 +280,8 @@ public class Main {
     }
 
     static private void printSquare(int i, int j, ChessBoard board) {
-        System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY));
+        System.out.print(((((i + j) % 2) == 1) ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY :
+                EscapeSequences.SET_BG_COLOR_DARK_GREY));
         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
         String output = EscapeSequences.EMPTY;
         if (piece != null) {

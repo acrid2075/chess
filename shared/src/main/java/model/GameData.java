@@ -31,7 +31,8 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
     }
 
     public GameData(GameDataJson gameDataJson) {
-        this(gameDataJson.gameID(), gameDataJson.whiteUsername(), gameDataJson.blackUsername(), gameDataJson.gameName(), Serializer.togglejsonoff(gameDataJson.game()));
+        this(gameDataJson.gameID(), gameDataJson.whiteUsername(), gameDataJson.blackUsername(), gameDataJson.gameName(),
+                Serializer.togglejsonoff(gameDataJson.game()));
     }
 }
 
