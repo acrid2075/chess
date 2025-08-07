@@ -157,7 +157,7 @@ public class Main {
                     }
                     try {
                         GameData game = gameDict.get(gameNum); System.out.println(); WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
-                        webSocketFacade.connectGame(authToken, game.gameID(), "observer");
+                        webSocketFacade.connectGame(authToken, game.gameID());
                         GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, "observer");
                         gui.run(); continue;
                     } catch (Exception e) {
@@ -196,7 +196,7 @@ public class Main {
                     System.out.println(game);
 //                    observe(game, username);
                     WebSocketFacade webSocketFacade = new WebSocketFacade(url, username, serverMessageHandler);
-                    webSocketFacade.connectGame(authToken, game.gameID(), values[2]);
+                    webSocketFacade.connectGame(authToken, game.gameID());
                     GameUI gui = new GameUI(webSocketFacade, authToken, server, game.gameID(), username, values[2]);
                     gui.run();
                 }

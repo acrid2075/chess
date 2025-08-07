@@ -76,6 +76,7 @@ public class SysGameDAO implements GameDAO {
                         var blackUsername = rs.getString("blackUsername");
                         var gameName = rs.getString("gameName");
                         var game = rs.getString("game");
+                        System.out.println(game);
                         return new GameData(id, whiteUsername, blackUsername, gameName, togglejsonoff(game));
                     }
                     return null;
@@ -234,24 +235,21 @@ public class SysGameDAO implements GameDAO {
 
     @Override
     public void gameOver(int gameID) {
-        GameData gameData;
-        int id;
-        String whiteUsername = "";
-        String blackUsername = "";
-        String gameName = "";
-        String game = "";
         ChessGame chessGame = new ChessGame(); //Look here if weird errors
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT id FROM games WHERE gameName=?")) {
-                preparedStatement.setString(1, gameName);
+            try (var preparedStatement = conn.prepareStatement("SELECT game FROM games WHERE id=?")) {
+                preparedStatement.setString(1, "" + gameID);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
                         chessGame = togglejsonoff(rs.getString("game"));
-                        chessGame.setTeamTurn(null);
                     }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-
+            chessGame.setTeamTurn(null);
             try (var preparedStatement = conn.prepareStatement("UPDATE games SET game=? WHERE id=?")) {
                 preparedStatement.setString(1, togglejsonon(chessGame));
                 preparedStatement.setInt(2, gameID);
@@ -346,7 +344,11 @@ public class SysGameDAO implements GameDAO {
 
         ChessGame output = new ChessGame();
         output.setBoard(board);
-        output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
+        if (details.turn() == null) {
+            output.setTeamTurn(null);
+        } else {
+            output.setTeamTurn((details.turn()).equals("WHITE") ? ChessGame.TeamColor.WHITE : ((details.turn()).equals("BLACK") ? ChessGame.TeamColor.BLACK : null));
+        }
         return output;
     }
 
@@ -368,9 +370,12 @@ public class SysGameDAO implements GameDAO {
                 Map.entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK), "R"),
                 Map.entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN), "P")
         );
-
-        HashMap<String, String> args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
-
+        HashMap<String, String> args;
+        if (game.getTeamTurn() == null) {
+            args = new HashMap<>(Map.of());
+        } else {
+            args = new HashMap<>(Map.of("turn", game.getTeamTurn().equals(ChessGame.TeamColor.WHITE) ? "WHITE" : (game.getTeamTurn().equals(ChessGame.TeamColor.BLACK) ? "BLACK" : "")));
+        }
         for (char c = 'a'; c <= 'h'; c++) {
             for (char d = '1'; d <= '8'; d++) {
                 int col = (int) c - (int) 'a' + 1;

@@ -180,15 +180,14 @@ public class WebSocketHandler {
             AuthData authData = userService.getAuth(userGameCommand.getAuthToken());
             String username = authData.username();
             GameData gameData = gameService.getGame(userGameCommand.getGameID());
-            if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
-                return;
-            }
-            gameService.leaveGame(userGameCommand.getGameID(), username);
             try {
                 connectionManager.remove(username, userGameCommand.getGameID());
                 connectionManager.broadcast(username, new ServerMessage(NOTIFICATION, username + " has left the game."), userGameCommand.getGameID());
             } catch (Exception e) {
                 throw new RuntimeException("failed to broadcast leave notification");
+            }
+            if ((username.equals(gameData.whiteUsername())) || (username.equals(gameData.blackUsername()))) {
+                gameService.leaveGame(userGameCommand.getGameID(), username);
             }
         }
     }
@@ -198,6 +197,14 @@ public class WebSocketHandler {
             AuthData authData = userService.getAuth(userGameCommand.getAuthToken());
             String username = authData.username();
             GameData gameData = gameService.getGame(userGameCommand.getGameID());
+            if (gameData.game().getTeamTurn() == null) {
+                try {
+                    connectionManager.msg(username, new ServerMessage(ERROR, "Error: game already over."));
+                } catch (Exception e) {
+                    throw new RuntimeException("failed to send error message");
+                }
+                return;
+            }
             if ((!username.equals(gameData.whiteUsername())) && (!username.equals(gameData.blackUsername()))) {
                 try {
                     connectionManager.msg(username, new ServerMessage(ERROR, "Error: not a player."));
@@ -210,7 +217,7 @@ public class WebSocketHandler {
             try {
                 connectionManager.broadcast("", new ServerMessage(NOTIFICATION, username + ", " + (username.equals(gameData.whiteUsername()) ? "WHITE" : "BLACK") + ", has resigned."), userGameCommand.getGameID());
             } catch (Exception e) {
-                throw new RuntimeException("failed to notification");
+                throw new RuntimeException("failed to send notification");
             }
         }
     }
